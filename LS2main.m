@@ -1,4 +1,4 @@
-function [a,anw,bb,bbp,kappa] = LS2main_test(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_Raman)
+function [a,anw,bb,bbp,kappa] = LS2main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_Raman)
 %Implements the LS2 inversion model to calculate a, anw, bb, and bbp from
 %Rrs at specified input light wavelength
 %
@@ -34,8 +34,10 @@ function [a,anw,bb,bbp,kappa] = LS2main_test(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,
 %   tables; can be loaded via load('LS2_LUT.mat');
 %
 %       LUT.muw [8x1 double]:  8 values of muw (in descending order) used
-%       to construct the a and bb LUTs LUT.eta [21x1 double]: 21 values of
-%       eta (in ascending order) used to construct the a and bb LUTs
+%       to construct the a and bb LUTs 
+%       
+%       LUT.eta [21x1 double]: 21 values of eta (in ascending order) used 
+%       to construct the a and bb LUTs
 %
 %       LUT.a [21x8x4 double]: Look-up table of four polynomial
 %       coefficients used to calculate the absorption coefficient from Eq.
