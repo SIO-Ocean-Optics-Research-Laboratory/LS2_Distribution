@@ -7,7 +7,7 @@ This README document provides information about the files within the LS2_Distrib
 ---
 
 ## LS2_LUT.mat
-Look-up tables (LUTs) necessary to run LS2_MK_Final.m. The structure contains five fields, each of which is a necessary to run LS2.See LS2main.m function documatation for further details about the .mat file.
+Look-up tables (LUTs) necessary to run LS2_MK_Final.m. The structure contains five fields, each of which is necessary to run LS2.See LS2main.m function documatation for further details about the .mat file.
 
 ## LS2_main.m
 The main function that runs LS2 for a single input R<sub>rs</sub>(λ). The function calculates a(λ), b<sub>b</sub>(λ), a<sub>nw</sub>(λ), and b<sub>bp</sub>(λ), from input solar zenith angle, R<sub>rs</sub>(λ),  K<sub>d</sub>(λ),  b<sub>w</sub>(λ), a<sub>w</sub>(λ), and b<sub>p</sub>(λ), at the given R<sub>rs</sub>(λ) input wavelength. See supporting documentation for further details.
