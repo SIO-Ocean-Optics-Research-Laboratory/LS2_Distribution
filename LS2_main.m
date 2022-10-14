@@ -82,7 +82,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Check function arguments and existence of LUTs
-    arguments  %RR - NOT SURE WHAT THIS DOES IF THERE IS AN ERROR
+    arguments
         sza (1,1) double
         lambda (1,1) double
         Rrs (1,1) double
