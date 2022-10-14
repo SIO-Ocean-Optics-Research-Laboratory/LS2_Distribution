@@ -1,4 +1,4 @@
-function [a,anw,bb,bbp,kappa] = LS2main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_Raman)
+function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_Raman)
 %Implements the LS2 inversion model to calculate a, anw, bb, and bbp from
 %Rrs at specified input light wavelength
 %
