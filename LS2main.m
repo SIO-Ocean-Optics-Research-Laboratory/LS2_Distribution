@@ -1,4 +1,4 @@
-function [a,anw,bb,bbp,kappa] = LS2main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_Raman)
+function [a,anw,bb,bbp,kappa] = LS2main_test(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_Raman)
 %Implements the LS2 inversion model to calculate a, anw, bb, and bbp from
 %Rrs at specified input light wavelength
 %
@@ -97,12 +97,14 @@ function [a,anw,bb,bbp,kappa] = LS2main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_
     muw = cosd(asind(sind(sza)/nw)); %[dim]
 
 %% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient between surface and first attenuation depth of downwelling planar irradiance
-    %In this version of the code, <Kd>_1 is assumed to be known and provided as input in units of [m^-1]
-    %In the 2018 paper, it is obtained from a separate neural network algorithm
+    %In this version of the code, <Kd>_1 is assumed to be known and
+    %provided as input in units of [m^-1] In the 2018 paper, it is obtained
+    %from a separate neural network algorithm
 
 %% Step 3: Calculation of b, the total scattering coefficient
-    %In this version of the code, bp and bw are assumed to be known and provided as input in units of [m^-1]
-    %In the 2018 paper, bp is estimated from Chl calculated using OC4v4 model
+    %In this version of the code, bp and bw are assumed to be known and
+    %provided as input in units of [m^-1] In the 2018 paper, bp is
+    %estimated from Chl calculated using OC4v4 model
     b = bp + bw; %[m^-1]
 
 %% Step 4: Calculation of eta, the ratio of the water molecular scattering coefﬁcient to the total scattering coefﬁcient
@@ -110,134 +112,208 @@ function [a,anw,bb,bbp,kappa] = LS2main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_
 
 %% Steps 5 & 7: Calculation of a and bb from Eqs. 9 and 8
     if ~isnan(eta) && ~isnan(muw)
+        %find uppermost index of eta and leftmost index of mu values in the
+        %LUTs
+
+        %Replacement for LS2_seek_pos that doesn't use a subfunction to
+        %find the location of eta in eta look-up table and displays warning
+        %if eta value is outside the range of the look-up table. Selected
+        %index is the leftmost position of the input look-up table.
+        if eta < min(LS2_LUT.eta)
+            warning(['eta is outside the lower bound of look-up table.' ...
+                ' Solutions of a and bb are output as nan.'])
+            a = nan;
+            anw = nan;
+            bb = nan;
+            bbp = nan;
+            kappa = nan;
+            return
+        elseif eta > max(LS2_LUT.eta)
+            warning(['eta is outside the upper bound of look-up table.' ...
+                ' Solutions of a and bb are output nan.'])
+            a = nan;
+            anw = nan;
+            bb = nan;
+            bbp = nan;
+            kappa = nan;
+            return
+        else
+            for i = 1:length(LS2_LUT.eta) - 1
+                if eta >= LS2_LUT.eta(i) && eta < LS2_LUT.eta(i+1)
+                    idx_eta = i;
+                end
+            end
+        end
         
-        %find uppermost index of eta and leftmost index of mu values in the LUTs
-        %Calls subfunction LS2_seek_pos
-        %RR - COULD DO THIS MATLAB - SHOULD ADD A CHECK TO MAKE SURE VALUES OF ETA AND MUW ARE IN RANGE OF TABLE
-        idx_eta = LS2_seek_pos(eta,LS2_LUT.eta,'eta');
-        idx_muw = LS2_seek_pos(muw,LS2_LUT.muw,'muw');
+        %Replacement for LS2_seek_pos that doesn't use a subfunction to
+        %find the location of muw in muw look-up table and displays warning
+        %if muw value is outside the range of the look-up table. Selected
+        %indicies is the leftmost position of the input look-up table.
+        if muw < min(LS2_LUT.muw)
+            warning(['muw is outside the lower bound of look-up table.' ...
+                ' Solutions of a and bb are output as nan.'])
+            a = nan;
+            anw = nan;
+            bb = nan;
+            bbp = nan;
+            kappa = nan;
+            return
+        elseif muw > max(LS2_LUT.muw)
+            warning(['muw is outside the upper bound of look-up table.' ...
+                ' Solutions of a and bb are output as nan.'])
+            a = nan;
+            anw = nan;
+            bb = nan;
+            bbp = nan;
+            kappa = nan;
+            return
+        else
+            for i = 1:length(LS2_LUT.muw) - 1 
+                if muw <= LS2_LUT.muw(i) && muw > LS2_LUT.muw(i+1)
+                    idx_muw = i;
+                end
+            end
+        end
+       
         
         %calculation of a from Eq. 9
-            %a is first calculated for four combinations of LUT values bracketing the lower and upper limits of eta and muw
-              a00 = Kd./(LS2_LUT.a(idx_eta,idx_muw,1) + LS2_LUT.a(idx_eta,idx_muw,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta,idx_muw,3).*Rrs.^2 + LS2_LUT.a(idx_eta,idx_muw,4).*Rrs.^3);
+        
+        %a is first calculated for four combinations of LUT values
+        %bracketing the lower and upper limits of eta and muw
+        a00 = Kd./(LS2_LUT.a(idx_eta,idx_muw,1) + ...
+            LS2_LUT.a(idx_eta,idx_muw,2).*Rrs + ...
+            LS2_LUT.a(idx_eta,idx_muw,3).*Rrs.^2 + ...
+            LS2_LUT.a(idx_eta,idx_muw,4).*Rrs.^3);
 
-              a01 = Kd./(LS2_LUT.a(idx_eta,idx_muw+1,1) + LS2_LUT.a(idx_eta,idx_muw+1,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta,idx_muw+1,3).*Rrs.^2 + LS2_LUT.a(idx_eta,idx_muw+1,4).*Rrs.^3);
+        a01 = Kd./(LS2_LUT.a(idx_eta,idx_muw+1,1) + ...
+            LS2_LUT.a(idx_eta,idx_muw+1,2).*Rrs + ...
+            LS2_LUT.a(idx_eta,idx_muw+1,3).*Rrs.^2 ...
+            + LS2_LUT.a(idx_eta,idx_muw+1,4).*Rrs.^3);
 
-              a10 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw,1) + LS2_LUT.a(idx_eta+1,idx_muw,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta+1,idx_muw,3).*Rrs.^2 + LS2_LUT.a(idx_eta+1,idx_muw,4).*Rrs.^3);
+        a10 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw,1) + ...
+            LS2_LUT.a(idx_eta+1,idx_muw,2).*Rrs + ...
+            LS2_LUT.a(idx_eta+1,idx_muw,3).*Rrs.^2 + ...
+            LS2_LUT.a(idx_eta+1,idx_muw,4).*Rrs.^3);
 
-              a11 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw+1,1) + LS2_LUT.a(idx_eta+1,idx_muw+1,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
-            
-            %calculated a is then linearly interpolated between the two values of eta for each value of muw
-              tmp1 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),a00,a10,eta);
-              tmp2 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),a01,a11,eta);
-
-              %RR - I THINK THIS BUILT-IN MATLAB FUNCTION COULD BE SUBSTITUTED FOR PERFORMING LINEAR INTERPOLATION
-              %tmp1 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[a00 a10],eta);
-              %tmp2 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[a01 a11],eta);
-            
-            %final a is calculated from linear interpolation between the two values of a for each muw
-              a = LS2_interp_line(LS2_LUT.muw(idx_muw),LS2_LUT.muw(idx_muw+1),tmp1,tmp2,muw); %[m^-1]
-              %RR a = interp1((LS2_LUT.muw(idx_muw:idx_muw+1),[tmp1 tmp2],muw)); %[m^-1]
+        a11 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw+1,1) + ...
+          LS2_LUT.a(idx_eta+1,idx_muw+1,2).*Rrs + ...
+            LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + ...
+            LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
+                
+        %Calculate using 2-D linear interpolation of a determined
+        %from bracketed values of eta and muw
+        a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+          LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
+          eta, muw); %[m^-1]   
 
         %calculation of bb from Eq. 8
-            %bb is first calculated for four combinations of LUT values bracketing the lower and upper limits of eta and muw
-            bb00 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw,1).*Rrs + LS2_LUT.bb(idx_eta,idx_muw,2).*Rrs.^2 + ...
-                   LS2_LUT.bb(idx_eta,idx_muw,3).*Rrs.^3);
+        
+        %bb is first calculated for four combinations of LUT values
+        %bracketing the lower and upper limits of eta and muw
+        bb00 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw,1).*Rrs + ...
+               LS2_LUT.bb(idx_eta,idx_muw,2).*Rrs.^2 + ...
+               LS2_LUT.bb(idx_eta,idx_muw,3).*Rrs.^3);
 
-            bb01 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw+1,1).*Rrs + LS2_LUT.bb(idx_eta,idx_muw+1,2).*Rrs.^2 + ...
-                   LS2_LUT.bb(idx_eta,idx_muw+1,3).*Rrs.^3);
+        bb01 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw+1,1).*Rrs + ...
+               LS2_LUT.bb(idx_eta,idx_muw+1,2).*Rrs.^2 + ...
+               LS2_LUT.bb(idx_eta,idx_muw+1,3).*Rrs.^3);
 
-            bb10 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw,1).*Rrs + LS2_LUT.bb(idx_eta+1,idx_muw,2).*Rrs.^2 + ...
-                   LS2_LUT.bb(idx_eta+1,idx_muw,3).*Rrs.^3);
+        bb10 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw,1).*Rrs + ...
+               LS2_LUT.bb(idx_eta+1,idx_muw,2).*Rrs.^2 + ...
+               LS2_LUT.bb(idx_eta+1,idx_muw,3).*Rrs.^3);
 
-            bb11 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw+1,1).*Rrs + LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
-                   LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
+        bb11 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw+1,1).*Rrs + ...
+               LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
+               LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
-        %bb is then linearly interpolated between the two values of eta for different muw
-            tmp1 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),bb00,bb10,eta);
-            tmp2 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),bb01,bb11,eta);
-            
-            %RR
-            %tmp1 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[bb00 bb10],eta);
-            %tmp2 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[bb01 bb11],eta);
-
-        %final bb is calculated from linear interpolation between the two values of muw    
-            bb = LS2_interp_line(LS2_LUT.muw(idx_muw),LS2_LUT.muw(idx_muw+1),tmp1,tmp2,muw); %[m^-1]
-
-            %RR bb = interp1((LS2_LUT.muw(idx_muw:idx_muw+1),[tmp1 tmp2],muw)); %[m^-1]
-
-     else
-        a = NaN; bb = NaN; %return NaNs if either eta or muw are NaNs
+        %Calculate bb using 2-D linear interpolation of bb determined
+        %from bracketed values of eta and muw
+        bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+              LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
+              eta, muw); %[m^-1]     
+          
+    %return NaNs if either eta or muw are NaNs
+    else
+        a = nan;
+        anw = nan;
+        bb = nan;
+        bbp = nan;
+        kappa = nan;
+        return
     end
 
 %% Step 9: Application of the Raman scattering correction if selected
-    %If Flag_Raman is set to 1 (true), apply Raman correction to input Rrs and recalculate a and bb the same as above
-    %Otherwise no correction is applied and original values are returned with kappa value of 1
+    %If Flag_Raman is set to 1 (true), apply Raman correction to input Rrs
+    %and recalculate a and bb the same as above Otherwise no correction is
+    %applied and original values are returned with kappa value of 1
     if Flag_Raman 
-        kappa = LS2_calc_kappa(bb/a,lambda,LS2_LUT.kappa); %Calls subfunction LS2_calc_kappa
+        %Calls subfunction LS2_calc_kappa
+        kappa = LS2_calc_kappa(bb/a,lambda,LS2_LUT.kappa);
 
         %Apply Raman scattering correction to Rrs and recalculate a & bb
         if ~isnan(kappa)
             Rrs = Rrs.*kappa;
             
             %calculation of a from Eq. 9
-                %a is first calculated for four combinations of LUT values bracketing the lower and upper limits of eta and muw
-                a00 = Kd./(LS2_LUT.a(idx_eta,idx_muw,1) + LS2_LUT.a(idx_eta,idx_muw,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta,idx_muw,3).*Rrs.^2 + LS2_LUT.a(idx_eta,idx_muw,4).*Rrs.^3);
 
-                a01 = Kd./(LS2_LUT.a(idx_eta,idx_muw+1,1) + LS2_LUT.a(idx_eta,idx_muw+1,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta,idx_muw+1,3).*Rrs.^2 + LS2_LUT.a(idx_eta,idx_muw+1,4).*Rrs.^3);
+            %a is first calculated for four combinations of LUT values
+            %bracketing the lower and upper limits of eta and muw
+            a00 = Kd./(LS2_LUT.a(idx_eta,idx_muw,1) + ...
+                LS2_LUT.a(idx_eta,idx_muw,2).*Rrs + ...
+                LS2_LUT.a(idx_eta,idx_muw,3).*Rrs.^2 + ...
+                LS2_LUT.a(idx_eta,idx_muw,4).*Rrs.^3);
 
-                a10 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw,1) + LS2_LUT.a(idx_eta+1,idx_muw,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta+1,idx_muw,3).*Rrs.^2 + LS2_LUT.a(idx_eta+1,idx_muw,4).*Rrs.^3);
+            a01 = Kd./(LS2_LUT.a(idx_eta,idx_muw+1,1) + ...
+                LS2_LUT.a(idx_eta,idx_muw+1,2).*Rrs + ...
+                LS2_LUT.a(idx_eta,idx_muw+1,3).*Rrs.^2 ...
+                + LS2_LUT.a(idx_eta,idx_muw+1,4).*Rrs.^3);
 
-                a11 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw+1,1) + LS2_LUT.a(idx_eta+1,idx_muw+1,2).*Rrs + ...
-                    LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
-            
-            %calculated a is then linearly interpolated between the two values of eta for each value of muw
-                tmp1 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),a00,a10,eta);
-                tmp2 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),a01,a11,eta);
+            a10 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw,1) + ...
+                LS2_LUT.a(idx_eta+1,idx_muw,2).*Rrs + ...
+                LS2_LUT.a(idx_eta+1,idx_muw,3).*Rrs.^2 + ...
+                LS2_LUT.a(idx_eta+1,idx_muw,4).*Rrs.^3);
 
-                %RR - I THINK BUILT-IN MATLAB FUNCTION COULD BE SUBSTITUTED FOR PERFORMING LINEAR INTERPOLATION
-                %tmp1 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[a00 a10],eta);
-                %tmp2 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[a01 a11],eta);
-            
-            %final a is calculated from linear interpolation between the two values of a for each muw
-                 a = LS2_interp_line(LS2_LUT.muw(idx_muw),LS2_LUT.muw(idx_muw+1),tmp1,tmp2,muw); %[m^-1]
-                %RR a = interp1((LS2_LUT.muw(idx_muw:idx_muw+1),[tmp1 tmp2],muw)); %[m^-1]
+            a11 = Kd./(LS2_LUT.a(idx_eta+1,idx_muw+1,1) + ...
+              LS2_LUT.a(idx_eta+1,idx_muw+1,2).*Rrs + ...
+                LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + ...
+                LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
+
+            %Calculate using 2-D linear interpolation of a determined
+            %from bracketed values of eta and muw
+            a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+              LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
+              eta, muw); %[m^-1]   
 
             %calculation of bb from Eq. 8
-            %bb is first calculated for four combinations of LUT values bracketing the lower and upper limits of eta and muw
-                bb00 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw,1).*Rrs + LS2_LUT.bb(idx_eta,idx_muw,2).*Rrs.^2 + ...
+
+            %bb is first calculated for four combinations of LUT values
+            %bracketing the lower and upper limits of eta and muw
+            bb00 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw,1).*Rrs + ...
+                   LS2_LUT.bb(idx_eta,idx_muw,2).*Rrs.^2 + ...
                    LS2_LUT.bb(idx_eta,idx_muw,3).*Rrs.^3);
 
-                bb01 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw+1,1).*Rrs + LS2_LUT.bb(idx_eta,idx_muw+1,2).*Rrs.^2 + ...
+            bb01 = Kd.*(LS2_LUT.bb(idx_eta,idx_muw+1,1).*Rrs + ...
+                   LS2_LUT.bb(idx_eta,idx_muw+1,2).*Rrs.^2 + ...
                    LS2_LUT.bb(idx_eta,idx_muw+1,3).*Rrs.^3);
 
-                bb10 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw,1).*Rrs + LS2_LUT.bb(idx_eta+1,idx_muw,2).*Rrs.^2 + ...
+            bb10 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw,1).*Rrs + ...
+                   LS2_LUT.bb(idx_eta+1,idx_muw,2).*Rrs.^2 + ...
                    LS2_LUT.bb(idx_eta+1,idx_muw,3).*Rrs.^3);
 
-                bb11 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw+1,1).*Rrs + LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
+            bb11 = Kd.*(LS2_LUT.bb(idx_eta+1,idx_muw+1,1).*Rrs + ...
+                   LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
                    LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
-            %bb is then linearly interpolated between the two values of eta for different muw
-                tmp1 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),bb00,bb10,eta);
-                tmp2 = LS2_interp_line(LS2_LUT.eta(idx_eta),LS2_LUT.eta(idx_eta+1),bb01,bb11,eta);
-            
-                %RR
-                %tmp1 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[bb00 bb10],eta);
-                %tmp2 = interp1(LS2_LUT.eta(idx_eta:idx_eta+1),[bb01 bb11],eta);
-
-            %final bb is calculated from linear interpolation between the two values of muw    
-                bb = LS2_interp_line(LS2_LUT.muw(idx_muw),LS2_LUT.muw(idx_muw+1),tmp1,tmp2,muw); %[m^-1]
-                %RR bb = interp1((LS2_LUT.muw(idx_muw:idx_muw+1),[tmp1 tmp2],muw)); %[m^-1]
+            %Calculate bb using 2-D linear interpolation of bb determined
+            %from bracketed values of eta and muw
+            bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+                  LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
+                  eta, muw); %[m^-1]   
         end
-
-    else %if Flag is not 1, do nothing and return original values of a, anw, bb, bbp with kappa returned as 1
+    
+    %if Flag is not 1, do nothing and return original values of a, anw, bb,
+    %bbp with kappa returned as 1
+    else
         kappa = 1;
     
     end
@@ -248,139 +324,33 @@ function [a,anw,bb,bbp,kappa] = LS2main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag_
     bbp = bb - bbw; %spectral particulate backscattering coefficient [m^-1]
 
 %% If output coefficients are negative, replace with NaN
-    a(a<0) = NaN;   anw(anw<0)=NaN;
-    bb(bb<0) = NaN; bbp(bbp<0)=NaN;
+    if a < 0 
+        warning('Solution for a is negative. Output a set to nan.')
+        a = nan;
+    end
+    if anw < 0 
+        warning('Solution for anw is negative. Output anw set to nan.')
+        anw = nan;
+    end
+    if bb < 0 
+        warning('Solution for bb is negative. Output bb set to nan.')
+        anw = nan;
+    end
+    if bbp < 0 
+        warning('Solution for bbp is negative. Output bbp set to nan.')
+        anw = nan;
+    end
 
 end
 %end of main code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Additional subfunctions that are called
-function idx = LS2_seek_pos(param,lut,type)
-    %MK remake of LS2 seek_pos subroutine. The subroutine finds the leftmost
-    %position of the input parameter in relation to its input LUT.
-    %
-    %Inputs: param, lut, type
-    %   param (1x1 Double): Input muw or eta value
-    %
-    %   lut (nx1 Double): Look-up table of muw or eta values used to determine
-    %   coefficients in Loisel et al. 2018. If the input is associated with muw
-    %   the lut must be 8x1 and sorted in descending order, and if the input is
-    %   associated with eta the lut must be 21x1 and sorted in ascending order.
-    %
-    %   type (String): Characterize param input. Valid values are 'muw' or
-    %   'eta'. Other inputs will produce and error.
-    %
-    %Output: idx
-    %   idx (1x1 Double): Leftmost position/index of input param in relation to
-    %   its LUT.
-    %
-    %Created: September 8, 2021
-    %Completed: September 8, 2021
-    %Updates: 
-    %
-    %Matthew Kehrli
-    %Ocean Optics Research Laboratory
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %Check function input arguments
-    arguments 
-        param (1,1) double
-        lut (:,1) double
-        type (1,1) string
-    end
-    
-    %mu_w lookup
-    if strcmp(type,'muw')
-        if length(lut) ~= 8 || ~issorted(lut,'descend')
-            error(['Look-up table for mu_w must be a 8x1 array sorted in '...
-                'descending order'])
-        end
-          
-       if param >= lut(1)
-           idx = 1;
-       end
-       if param <=lut(end)
-           idx = length(lut) - 1;
-       end
-       for i = 1:length(lut) - 1
-           if param <= lut(i) && param > lut(i+1)
-               idx = i;
-           end
-       end
-       
-    %Eta lookup
-    elseif strcmp(type,'eta')
-        if length(lut) ~= 21 || ~issorted(lut)
-            error(['Look-up table for eta must be a 21x1 array sorted in '...
-                'ascending order'])
-        end
-        if param <= lut(1)
-            idx = 1;
-        end
-        if param >= lut(end)
-            idx = length(lut) - 1;
-        end
-        for i = 1:length(lut) - 1
-            if param >= lut(i) && param < lut(i+1)
-                idx = i;
-            end
-        end
-        
-    end
-end
-
-function yq = LS2_interp_line(x1,x2,y1,y2,xq)
-    %MK remake of LS2 interp_line subroutine. The subroutine linearly
-    %interpolates/extrapolates a value of yq for a given query point, xq.
-    %
-    %Inputs: x1,x2,y1,y2,xq
-    %   x1 (1x1 Double): First x sample point.
-    %
-    %   x2 (1x1 Double): Second x sample point.
-    %
-    %   y1 (1x1 Double): First y sample point.
-    %
-    %   y2 (1x1 Double): Second y sample point.
-    %
-    %   xq (1x1 Double): Query x point.
-    %
-    %Output: yq
-    %   yq (1x1 Double): Query y point.
-    %
-    %Created: September 8, 2021
-    %Completed: September 8, 2021
-    %Updates: 
-    %
-    %Matthew Kehrli
-    %Ocean Optics Research Laboratory
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    %Check function input arguments
-    arguments 
-        x1 (1,1) double
-        x2 (1,1) double
-        y1 (1,1) double
-        y2(1,1) double
-        xq (1,1) double
-    end
-    
-    % Find piecewise slopes
-    a = (y2 - y1)./(x2 - x1);
-    
-    % Find piecewise intercepts
-    b = y1 - (a.*x1);
-    
-    % Find functional values at query points
-    yq = a*xq + b;
-end
-
 function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
-    %MK remake of LS2 calc_kappa subroutine. The subroutine determines kappa
-    %using a linear interpolation/extrapolation from the Raman scattering
-    %look-up tables.
+    %The subroutine determines kappa using a linear
+    %interpolation/extrapolation from the Raman scattering look-up tables.
     %
-    %Inputs: Rrs, Kd, eta, muw, pos_eta, pos_mu, lut_eta, lut_mu, lut_a
+    %Inputs: bb_a, lam, r
     %   bb_a (1x1 Double): Backscattering to absorption coefficient ratio
     %   output from LS2 model.
     %
@@ -398,7 +368,7 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
     %
     %Matthew Kehrli
     %Ocean Optics Research Laboratory
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %Check function input arguments
     arguments
@@ -407,8 +377,8 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
         rLUT (101,7) double
     end
     
-    %Intepolate minimum and maximum allowable bb/a values that calculate kappa
-    %to the input wavelegnth.
+    %Intepolate minimum and maximum allowable bb/a values that calculate
+    %kappa to the input wavelegnth.
     mins = interp1(rLUT(:,1),rLUT(:,6),lam,'linear');
     maxs = interp1(rLUT(:,1),rLUT(:,7),lam,'linear');
     
@@ -417,13 +387,13 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
         %Calculate all kappas for the input bb/a ratio
         kappas = rLUT(:,2).*bb_a.^3 + rLUT(:,3).*bb_a.^2 + rLUT(:,4).*bb_a ...
             + rLUT(:,5);
-        %Calculate output kappa using a 1-D linear interpolation to the input
-        %wavlength
+        %Calculate output kappa using a 1-D linear interpolation to the
+        %input wavlength
         kappa = interp1(rLUT(:,1),kappas,lam,'linear');
     else
         kappa = nan;
-        %Send warning message to user that no Raman correction is applied to
-        %input
+        %Send warning message to user that no Raman correction is applied
+        %to input
         warning(['No Raman Correction since bb/a value is outside of the' ...
             ' acceptable range. Kappa set to nan and no correction is' ...
             ' applied. See Raman Correction LUT.'])
