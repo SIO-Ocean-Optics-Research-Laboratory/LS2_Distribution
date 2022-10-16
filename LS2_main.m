@@ -114,69 +114,81 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
 %% Steps 5 & 7: Calculation of a and bb from Eqs. 9 and 8
     if ~isnan(eta) && ~isnan(muw)
-        %find uppermost index of eta and leftmost index of mu values in the
-        %LUTs
-
-        %Replacement for LS2_seek_pos that doesn't use a subfunction to
-        %find the location of eta in eta look-up table and displays warning
-        %if eta value is outside the range of the look-up table. Selected
-        %index is the leftmost position of the input look-up table.
-        if eta < min(LS2_LUT.eta)
-            warning(['eta is outside the lower bound of look-up table.' ...
-                ' Solutions of a and bb are output as nan.'])
+        %find leftmost index of eta and mu values in the LUTs for
+        %interpolation
+        idx_eta = LS2_seek_pos(eta,LS2_LUT.eta,'eta');
+        idx_muw = LS2_seek_pos(muw,LS2_LUT.muw,'muw');
+        
+        %If eta or mu is outside of the bounds of LUTs return nan outputs
+        if isnan(idx_eta) || isnan(idx_muw)
             a = nan;
             anw = nan;
             bb = nan;
             bbp = nan;
             kappa = nan;
             return
-        elseif eta > max(LS2_LUT.eta)
-            warning(['eta is outside the upper bound of look-up table.' ...
-                ' Solutions of a and bb are output nan.'])
-            a = nan;
-            anw = nan;
-            bb = nan;
-            bbp = nan;
-            kappa = nan;
-            return
-        else
-            for i = 1:length(LS2_LUT.eta) - 1
-                if eta >= LS2_LUT.eta(i) && eta < LS2_LUT.eta(i+1)
-                    idx_eta = i;
-                end
-            end
         end
         
-        %Replacement for LS2_seek_pos that doesn't use a subfunction to
-        %find the location of muw in muw look-up table and displays warning
-        %if muw value is outside the range of the look-up table. Selected
-        %indicies is the leftmost position of the input look-up table.
-        if muw < min(LS2_LUT.muw)
-            warning(['muw is outside the lower bound of look-up table.' ...
-                ' Solutions of a and bb are output as nan.'])
-            a = nan;
-            anw = nan;
-            bb = nan;
-            bbp = nan;
-            kappa = nan;
-            return
-        elseif muw > max(LS2_LUT.muw)
-            warning(['muw is outside the upper bound of look-up table.' ...
-                ' Solutions of a and bb are output as nan.'])
-            a = nan;
-            anw = nan;
-            bb = nan;
-            bbp = nan;
-            kappa = nan;
-            return
-        else
-            for i = 1:length(LS2_LUT.muw) - 1 
-                if muw <= LS2_LUT.muw(i) && muw > LS2_LUT.muw(i+1)
-                    idx_muw = i;
-                end
-            end
-        end
-       
+%         %Replacement for LS2_seek_pos that doesn't use a subfunction to
+%         %find the location of eta in eta look-up table and displays warning
+%         %if eta value is outside the range of the look-up table. Selected
+%         %index is the leftmost position of the input look-up table.
+%         if eta < min(LS2_LUT.eta)
+%             warning(['eta is outside the lower bound of look-up table.' ...
+%                 ' Solutions of a and bb are output as nan.'])
+%             a = nan;
+%             anw = nan;
+%             bb = nan;
+%             bbp = nan;
+%             kappa = nan;
+%             return
+%         elseif eta > max(LS2_LUT.eta)
+%             warning(['eta is outside the upper bound of look-up table.' ...
+%                 ' Solutions of a and bb are output nan.'])
+%             a = nan;
+%             anw = nan;
+%             bb = nan;
+%             bbp = nan;
+%             kappa = nan;
+%             return
+%         else
+%             for i = 1:length(LS2_LUT.eta) - 1
+%                 if eta >= LS2_LUT.eta(i) && eta < LS2_LUT.eta(i+1)
+%                     idx_eta = i;
+%                 end
+%             end
+%         end
+%         
+%         %Replacement for LS2_seek_pos that doesn't use a subfunction to
+%         %find the location of muw in muw look-up table and displays warning
+%         %if muw value is outside the range of the look-up table. Selected
+%         %indicies is the leftmost position of the input look-up table.
+%         if muw < min(LS2_LUT.muw)
+%             warning(['muw is outside the lower bound of look-up table.' ...
+%                 ' Solutions of a and bb are output as nan.'])
+%             a = nan;
+%             anw = nan;
+%             bb = nan;
+%             bbp = nan;
+%             kappa = nan;
+%             return
+%         elseif muw > max(LS2_LUT.muw)
+%             warning(['muw is outside the upper bound of look-up table.' ...
+%                 ' Solutions of a and bb are output as nan.'])
+%             a = nan;
+%             anw = nan;
+%             bb = nan;
+%             bbp = nan;
+%             kappa = nan;
+%             return
+%         else
+%             for i = 1:length(LS2_LUT.muw) - 1 
+%                 if muw <= LS2_LUT.muw(i) && muw > LS2_LUT.muw(i+1)
+%                     idx_muw = i;
+%                 end
+%             end
+%         end
+%        
         
         %calculation of a from Eq. 9
         
@@ -348,6 +360,88 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Additional subfunctions that are called
+function idx = LS2_seek_pos(param,lut,type)
+%MK remake of LS2 seek_pos subroutine. The subroutine finds the leftmost
+%position of the input parameter in relation to its input LUT.
+%
+%Inputs: param, lut, type
+%   param (1x1 Double): Input muw or eta value
+%
+%   lut (nx1 Double): Look-up table of muw or eta values used to determine
+%   coefficients in Loisel et al. 2018. If the input is associated with muw
+%   the lut must be 8x1 and sorted in descending order, and if the input is
+%   associated with eta the lut must be 21x1 and sorted in ascending order.
+%
+%   type (String): Characterize param input. Valid values are 'muw' or
+%   'eta'. Other inputs will produce and error.
+%
+%Output: idx
+%   idx (1x1 Double): Leftmost position/index of input param in relation to
+%   its LUT.
+%
+%Created: September 8, 2021
+%Completed: September 8, 2021
+%Updates: October 15, 2022 - Added warning messages and changed logic for
+%output
+%
+%Matthew Kehrli
+%Ocean Optics Research Laboratory
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Check function input arguments
+arguments 
+    param (1,1) double
+    lut (:,1) double
+    type (1,1) string
+end
+
+%mu_w lookup
+if strcmp(type,'muw')
+    if length(lut) ~= 8 || ~issorted(lut,'descend')
+        error(['Look-up table for mu_w must be a 8x1 array sorted in '...
+            'descending order'])
+    end
+      
+   if param < min(lut)
+        warning(['muw is outside the lower bound of look-up table.' ...
+            ' Solutions of a and bb are output as nan.'])
+       idx = nan;
+   end
+   if param > max(lut)
+        warning(['muw is outside the upper bound of look-up table.' ...
+            ' Solutions of a and bb are output as nan.'])
+       idx = nan;
+   end
+   for i = 1:length(lut) - 1
+       if param <= lut(i) && param > lut(i+1)
+           idx = i;
+       end
+   end
+   
+%Eta lookup
+elseif strcmp(type,'eta')
+    if length(lut) ~= 21 || ~issorted(lut)
+        error(['Look-up table for eta must be a 21x1 array sorted in '...
+            'ascending order'])
+    end
+    if param < min(lut)
+        warning(['eta is outside the lower bound of look-up table.' ...
+            ' Solutions of a and bb are output as nan.'])
+        idx = nan;
+    end
+    if param > max(lut)
+        warning(['eta is outside the upper bound of look-up table.' ...
+            ' Solutions of a and bb are output nan.'])
+        idx = nan;
+    end
+    for i = 1:length(lut) - 1
+        if param >= lut(i) && param < lut(i+1)
+            idx = i;
+        end
+    end 
+end
+end
+
 function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
     %The subroutine determines kappa using a linear
     %interpolation/extrapolation from the Raman scattering look-up tables.
