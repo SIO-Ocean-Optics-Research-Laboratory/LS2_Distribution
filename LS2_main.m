@@ -128,68 +128,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
             kappa = nan;
             return
         end
-        
-%         %Replacement for LS2_seek_pos that doesn't use a subfunction to
-%         %find the location of eta in eta look-up table and displays warning
-%         %if eta value is outside the range of the look-up table. Selected
-%         %index is the leftmost position of the input look-up table.
-%         if eta < min(LS2_LUT.eta)
-%             warning(['eta is outside the lower bound of look-up table.' ...
-%                 ' Solutions of a and bb are output as nan.'])
-%             a = nan;
-%             anw = nan;
-%             bb = nan;
-%             bbp = nan;
-%             kappa = nan;
-%             return
-%         elseif eta > max(LS2_LUT.eta)
-%             warning(['eta is outside the upper bound of look-up table.' ...
-%                 ' Solutions of a and bb are output nan.'])
-%             a = nan;
-%             anw = nan;
-%             bb = nan;
-%             bbp = nan;
-%             kappa = nan;
-%             return
-%         else
-%             for i = 1:length(LS2_LUT.eta) - 1
-%                 if eta >= LS2_LUT.eta(i) && eta < LS2_LUT.eta(i+1)
-%                     idx_eta = i;
-%                 end
-%             end
-%         end
-%         
-%         %Replacement for LS2_seek_pos that doesn't use a subfunction to
-%         %find the location of muw in muw look-up table and displays warning
-%         %if muw value is outside the range of the look-up table. Selected
-%         %indicies is the leftmost position of the input look-up table.
-%         if muw < min(LS2_LUT.muw)
-%             warning(['muw is outside the lower bound of look-up table.' ...
-%                 ' Solutions of a and bb are output as nan.'])
-%             a = nan;
-%             anw = nan;
-%             bb = nan;
-%             bbp = nan;
-%             kappa = nan;
-%             return
-%         elseif muw > max(LS2_LUT.muw)
-%             warning(['muw is outside the upper bound of look-up table.' ...
-%                 ' Solutions of a and bb are output as nan.'])
-%             a = nan;
-%             anw = nan;
-%             bb = nan;
-%             bbp = nan;
-%             kappa = nan;
-%             return
-%         else
-%             for i = 1:length(LS2_LUT.muw) - 1 
-%                 if muw <= LS2_LUT.muw(i) && muw > LS2_LUT.muw(i+1)
-%                     idx_muw = i;
-%                 end
-%             end
-%         end
-%        
-        
+
         %calculation of a from Eq. 9
         
         %a is first calculated for four combinations of LUT values
