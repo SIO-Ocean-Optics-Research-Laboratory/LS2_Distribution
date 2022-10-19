@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Run LS2 code for ditribution. Utilizes ten inputs and outputs to .xlsx
+%Run LS2 code for distribution. Utilizes ten inputs and outputs to .xlsx
 %file for comparison against xxx.xlsx.
 
 %Created: October 12, 2022
