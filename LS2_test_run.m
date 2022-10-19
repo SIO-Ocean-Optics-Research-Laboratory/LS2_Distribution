@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Run LS2 code for ditribution. Utilizes ten inputs and outputs to .xlsx
+%Run LS2 code for distribution. Utilizes ten inputs and outputs to .xlsx
 %file for comparison against xxx.xlsx.
 
 %Created: October 12, 2022
@@ -101,7 +101,7 @@ input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
     0.132749681531226, 0.123460200430847, 0.111618099573194, ...
     0.107240919197775, 0.0985457095330905, 0.0816311474490525];
 
-%Input LS2
+%Input LS2 LUTs
 input_LS2_LUT = load('LS2_LUT.mat');
 input_LS2_LUT = input_LS2_LUT.LS2_LUT;
 
@@ -119,7 +119,7 @@ output_kappa = nan(size(input_Rrs));
 for i = 1:size(input_Rrs,1)
     for j = 1:size(input_Rrs,2)
         [output_a(i,j), output_anw(i,j), output_bb(i,j), ...
-            output_bbp(i,j), output_kappa(i,j)] = LS2main_test(input_sza(i), ...
+            output_bbp(i,j), output_kappa(i,j)] = LS2_main(input_sza(i), ...
             input_lambda(j), input_Rrs(i,j), input_Kd(i,j), input_aw(j), ...
             input_bw(j), input_bp(i,j), input_LS2_LUT, input_Flag_Raman);
     end
