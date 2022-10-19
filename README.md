@@ -1,4 +1,4 @@
-# LS2_Distribution MDK Edit -- delete
+# LS2_Distribution
 ---
 Loisel and Stramski 2 (LS2) is a bulk inversion model for estimating the inherent optical properites of the spectral absorption, a(λ), and backscattering b<sub>b</sub>(λ) coefficients as well as their non-water components a<sub>nw</sub>(λ) and b<sub>bp</sub>(λ) from measurments of remote sensing reflectance, R<sub>rs</sub>(λ). The model  avoids assumptions about the spectral shapes of a(λ) and b<sub>b</sub>(λ) and aims to be implemented as the first step in a mutlti-step semianalytical approach with additional partitioning models to derive optical properties of seawater constituents from both in situ and remote sensing observations of R<sub>rs</sub>(λ). The complete development and validation of the LS2 model is described in [Loisel et al. 2018](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017JC013632). In correspondance with our collaborators we have converted LS2 model source code into MATLAB file format.
 
