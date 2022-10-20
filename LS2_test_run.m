@@ -1,6 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Run LS2 code for distribution. Utilizes ten inputs and outputs to .xlsx
-%file for comparison against xxx.xlsx.
+%Test script for the LS2 code. The LS2 code is run for ten specified inputs
+%and resulting output is saved to an .xlsx file for comparison with provided
+%output file LS2_test_run_output.xlsx.
+%MATTHEW; WON'T THIS OVERWRITE THE PROVIDED FILE THEY DOWNLOAD? I THINK YOU SHOULD GIVE THE
+%OUTPUT FILE A DIFFERENT NAME (OR HAVE USER ENTER A FILENAME).
 
 %Created: October 12, 2022
 %Completed: October 14, 2022
@@ -16,6 +19,7 @@ clc; clearvars; close all;
 %Define input parameters
 
 %Solar zenith angle input
+%ADD DESCRIPTION OF UNITS FOR ALL INPUTS!
 input_sza = [58.3534804715254; 57.8478623967075; 55.7074826164700; ...
     56.3604406592725; 56.4697386744023; 56.8356539563103; ...
     46.7609493705841; 42.9575051280531; 39.1258070531710; ...
@@ -104,6 +108,9 @@ input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
 %Input LS2 LUTs
 input_LS2_LUT = load('LS2_LUT.mat');
 input_LS2_LUT = input_LS2_LUT.LS2_LUT;
+%I DON'T UNDERSTAND THIS PART; ALL THEY NEED TO DO IS "load LS2_LUT.mat". NOT
+%SURE WHY IT NEEDS TO BE RENAMED AS "input_", BUT I GUESS YOU WANT THIS FOR
+%CONSISTENCY
 
 %Input Raman Flag
 input_Flag_Raman = 1;
@@ -115,7 +122,7 @@ output_bb = nan(size(input_Rrs));
 output_bbp = nan(size(input_Rrs));
 output_kappa = nan(size(input_Rrs));
 
-%Run LS2 for all samples at every wavelength
+%Loop to run LS2 for all samples at every wavelength
 for i = 1:size(input_Rrs,1)
     for j = 1:size(input_Rrs,2)
         [output_a(i,j), output_anw(i,j), output_bb(i,j), ...
