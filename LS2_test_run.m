@@ -1,13 +1,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Run LS2 code for distribution. Utilizes ten inputs and outputs to .xlsx
-%file for comparison against xxx.xlsx.
 
+%Test script for the LS2 code. The LS2 code is run for ten specified inputs
+%and resulting output is saved to an .xlsx file for comparison with provided
+%output file LS2_test_run_output.xlsx.
+%MATTHEW; WON'T THIS OVERWRITE THE PROVIDED FILE THEY DOWNLOAD? I THINK YOU SHOULD GIVE THE
+%OUTPUT FILE A DIFFERENT NAME (OR HAVE USER ENTER A FILENAME).
+%
 %Created: October 12, 2022
 %Completed: October 14, 2022
 %Updates: N/A
 %
 %Matthew Kehrli
-%Ocean Optics Research Laboratory
+%SIO Ocean Optics Research Laboratory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Clear command window and workspace; close figures
@@ -16,15 +20,16 @@ clc; clearvars; close all;
 %Define input parameters
 
 %Solar zenith angle input
+%ADD DESCRIPTION OF UNITS FOR ALL INPUTS!
 input_sza = [58.3534804715254; 57.8478623967075; 55.7074826164700; ...
     56.3604406592725; 56.4697386744023; 56.8356539563103; ...
     46.7609493705841; 42.9575051280531; 39.1258070531710; ...
     36.7202617271538];
 
-%Wavlength input
+%Input Wavelengths
 input_lambda = [412, 443, 490, 510, 555, 670];
 
-%Remote sensing reflectance input 10 samples at six wavlengths
+%Input Rrs
 input_Rrs = [0.00233524115013000, 0.00294175586230000, ...
     0.00393113794469000, 0.00340969897475000, 0.00229711245356000, ...
     0.000126252474968051;0.00389536285161000,0.00380553119300000, ...
@@ -47,7 +52,7 @@ input_Rrs = [0.00233524115013000, 0.00294175586230000, ...
     0.00511788480497000, 0.00358608311014000, 0.00161083692320000, ...
     3.81378558561512e-05];
 
-%Input of diffuse attenuation coefficients
+%Input Kd
 input_Kd = [0.187632830961948, 0.138869886516291, 0.0903870213746760, ...
     0.0887979802802584, 0.105697824445020, 0.562373761609887; ...
     0.0959924017590809, 0.0776637266248738, 0.0621434486477123, ...
@@ -69,7 +74,7 @@ input_Kd = [0.187632830961948, 0.138869886516291, 0.0903870213746760, ...
     0.0497417842712074, 0.0416885187358688, 0.0380380139571626, ...
     0.0449932910491427, 0.0717349865479659, 0.474223095982504];
 
-%Input of pure seawater spectral absorption coefficient
+%Input aw
 input_aw = [0.00467300000000000, 0.00721000000000000, ...
     0.0150000000000000, 0.0325000000000000,0.0592000000000000, ...
     0.439000000000000];
@@ -104,6 +109,9 @@ input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
 %Input LS2 LUTs
 input_LS2_LUT = load('LS2_LUT.mat');
 input_LS2_LUT = input_LS2_LUT.LS2_LUT;
+%I DON'T UNDERSTAND THIS PART; ALL THEY NEED TO DO IS "load LS2_LUT.mat". NOT
+%SURE WHY IT NEEDS TO BE RENAMED AS "input_", BUT I GUESS YOU WANT THIS FOR
+%CONSISTENCY
 
 %Input Raman Flag
 input_Flag_Raman = 1;
@@ -115,7 +123,7 @@ output_bb = nan(size(input_Rrs));
 output_bbp = nan(size(input_Rrs));
 output_kappa = nan(size(input_Rrs));
 
-%Run LS2 for all samples at every wavelength
+%Loop to run LS2 for all samples at every wavelength
 for i = 1:size(input_Rrs,1)
     for j = 1:size(input_Rrs,2)
         [output_a(i,j), output_anw(i,j), output_bb(i,j), ...
