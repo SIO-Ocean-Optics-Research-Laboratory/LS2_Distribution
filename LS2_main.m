@@ -16,7 +16,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   lambda [1x1 double]: Light wavelength in vacuum [nm]; valid range is
 %   302-702 nm
 %
-%   Rrs [1x1 double]: Spectral remote sensing reflectance at lambda [sr^-1]
+%   Rrs [1x1 double]: Spectral remote-sensing reflectance at lambda [sr^-1]
 %
 %   Kd [1x1 double]: Average spectral attenuation coefficient between
 %   surface and first attenuation depth for downwelling planar irradiance,
@@ -55,8 +55,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %
 %   Flag_Raman [1x1 Double]: Flag to apply or omit a Raman scattering
 %   correction to Rrs If input value = 1, a Raman scattering correction is
-%   applied to Rrs and output is recalculated via a single iteration If
-%   input value ne 1, no Raman scattering correction is applied to Rrs and
+%   applied to Rrs and output is recalculated via a single iteration. If
+%   input value is not equal to 1, no Raman scattering correction is applied to Rrs and
 %   initial model output is returned
 %
 %Outputs:
@@ -154,7 +154,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
             LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
                 
         %Calculate using 2-D linear interpolation of a determined
-        %from bracketed values of eta and muw
+        %from the four bracketed values of eta and muw
         a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
           LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
           eta, muw); %[m^-1]   
@@ -180,7 +180,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
         %Calculate bb using 2-D linear interpolation of bb determined
-        %from bracketed values of eta and muw
+        %from the four bracketed values of eta and muw
         bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
               LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
               eta, muw); %[m^-1]     
@@ -197,7 +197,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
 %% Step 9: Application of the Raman scattering correction if selected
     %If Flag_Raman is set to 1 (true), apply Raman correction to input Rrs
-    %and recalculate a and bb the same as above Otherwise no correction is
+    %and recalculate a and bb the same as above. Otherwise no correction is
     %applied and original values are returned with kappa value of 1
     if Flag_Raman 
         %Calls subfunction LS2_calc_kappa
@@ -312,7 +312,7 @@ function idx = LS2_seek_pos(param,lut,type)
 %   associated with eta the lut must be 21x1 and sorted in ascending order.
 %
 %   type (String): Characterize param input. Valid values are 'muw' or
-%   'eta'. Other inputs will produce and error.
+%   'eta'. Other inputs will produce an error.
 %
 %Output: idx
 %   idx (1x1 Double): Leftmost position/index of input param in relation to
@@ -334,7 +334,7 @@ arguments
     type (1,1) string
 end
 
-%mu_w lookup
+%muw lookup
 if strcmp(type,'muw')
     if length(lut) ~= 8 || ~issorted(lut,'descend')
         error(['Look-up table for mu_w must be a 8x1 array sorted in '...
