@@ -1,9 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Test script for the LS2 code. The LS2 code is run for ten specified inputs
-%and resulting output is saved to an .xlsx file for comparison with provided
-%output file LS2_test_run_output.xlsx.
-%MATTHEW; WON'T THIS OVERWRITE THE PROVIDED FILE THEY DOWNLOAD? I THINK YOU SHOULD GIVE THE
-%OUTPUT FILE A DIFFERENT NAME (OR HAVE USER ENTER A FILENAME).
+%and the resulting output is saved to LS2_test_run_output_YYYYMMDD.xls file
+%for comparison with provided output file LS2_test_run_output.xls.
 %
 %Created: October 12, 2022
 %Completed: October 14, 2022
@@ -18,17 +16,16 @@ clc; clearvars; close all;
 
 %Define input parameters
 
-%Solar zenith angle input
-%ADD DESCRIPTION OF UNITS FOR ALL INPUTS!
+%Solar zenith angle input [deg]
 input_sza = [58.3534804715254; 57.8478623967075; 55.7074826164700; ...
     56.3604406592725; 56.4697386744023; 56.8356539563103; ...
     46.7609493705841; 42.9575051280531; 39.1258070531710; ...
     36.7202617271538];
 
-%Input Wavelengths
+%Input Wavelengths [nm]
 input_lambda = [412, 443, 490, 510, 555, 670];
 
-%Input Rrs
+%Input Rrs [sr^-1]
 input_Rrs = [0.00233524115013000, 0.00294175586230000, ...
     0.00393113794469000, 0.00340969897475000, 0.00229711245356000, ...
     0.000126252474968051;0.00389536285161000,0.00380553119300000, ...
@@ -51,7 +48,7 @@ input_Rrs = [0.00233524115013000, 0.00294175586230000, ...
     0.00511788480497000, 0.00358608311014000, 0.00161083692320000, ...
     3.81378558561512e-05];
 
-%Input Kd
+%Input Kd [m^-1]
 input_Kd = [0.187632830961948, 0.138869886516291, 0.0903870213746760, ...
     0.0887979802802584, 0.105697824445020, 0.562373761609887; ...
     0.0959924017590809, 0.0776637266248738, 0.0621434486477123, ...
@@ -73,17 +70,17 @@ input_Kd = [0.187632830961948, 0.138869886516291, 0.0903870213746760, ...
     0.0497417842712074, 0.0416885187358688, 0.0380380139571626, ...
     0.0449932910491427, 0.0717349865479659, 0.474223095982504];
 
-%Input aw
+%Input aw [m^-1]
 input_aw = [0.00467300000000000, 0.00721000000000000, ...
     0.0150000000000000, 0.0325000000000000,0.0592000000000000, ...
     0.439000000000000];
 
-%Input bw
+%Input bw [m^-1]
 input_bw = [0.00658572000000000, 0.00477700000000000, ...
     0.00309800000000000,0.00259800000000000,0.00184881000000000, ...
     0.000800000000000000];
 
-%Input bp
+%Input bp [m^-1]
 input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
     0.299289309014959, 0.275022608284016, 0.227817235220342; ...
     0.222636201160542, 0.207056692727185, 0.187196152812537, ...
@@ -108,9 +105,6 @@ input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
 %Input LS2 LUTs
 input_LS2_LUT = load('LS2_LUT.mat');
 input_LS2_LUT = input_LS2_LUT.LS2_LUT;
-%I DON'T UNDERSTAND THIS PART; ALL THEY NEED TO DO IS "load LS2_LUT.mat". NOT
-%SURE WHY IT NEEDS TO BE RENAMED AS "input_", BUT I GUESS YOU WANT THIS FOR
-%CONSISTENCY
 
 %Input Raman Flag
 input_Flag_Raman = 1;
@@ -144,6 +138,7 @@ for i = 1:size(input_Rrs,2)
             T.Properties.VariableNames = {'Input wavelength [nm]' 'Input sza [deg]' 'Input Rrs [1/sr]' ...
                 'Input Kd [1/m]' 'Input aw [1/m]' 'Input bw [1/m]' 'Input bp [1/m]' 'Ouput a [1/m]' ...
                 'Output anw [1/m]' 'Output bb [1/m]' 'Output bbp [1/m]' 'Output kappa [dim]'};
-            outfile=[cd '\LS2_test_run_output'];
+            FormatOut = 'YYYYMMDD';
+            outfile=[cd '\LS2_test_run_output_' datestr(datetime,FormatOut)];
             writetable(T,outfile,'FileType','spreadsheet','Sheet',[num2str(input_lambda(i)) ' nm'])
 end
