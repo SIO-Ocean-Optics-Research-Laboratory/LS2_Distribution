@@ -8,7 +8,7 @@
 %Updates: N/A
 %
 %Matthew Kehrli
-%SIO Ocean Optics Research Laboratory
+%Ocean Optics Research Laboratory, Scripps Institution of Oceanography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Clear command window and workspace; close figures
