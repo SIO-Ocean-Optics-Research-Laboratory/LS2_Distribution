@@ -1,5 +1,4 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %Test script for the LS2 code. The LS2 code is run for ten specified inputs
 %and resulting output is saved to an .xlsx file for comparison with provided
 %output file LS2_test_run_output.xlsx.
