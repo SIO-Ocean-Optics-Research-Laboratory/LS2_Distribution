@@ -18,9 +18,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %
 %   Rrs [1x1 double]: Spectral remote-sensing reflectance at lambda [sr^-1]
 %
-%   Kd [1x1 double]: Average spectral attenuation coefficient between
-%   surface and first attenuation depth for downwelling planar irradiance,
-%   <Kd>_1, at lambda  [m^-1]
+%   Kd [1x1 double]: Average spectral attenuation coefficient of
+%   downwelling planar irradiance between the surface and first attenuation
+%   depth, <Kd>_1, at lambda [m^-1]
 %   
 %   aw [1x1 double]: Pure seawater spectral absorption coefficient at
 %   lambda [m^-1]
@@ -56,8 +56,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   Flag_Raman [1x1 Double]: Flag to apply or omit a Raman scattering
 %   correction to Rrs If input value = 1, a Raman scattering correction is
 %   applied to Rrs and output is recalculated via a single iteration. If
-%   input value is not equal to 1, no Raman scattering correction is applied to Rrs and
-%   initial model output is returned
+%   input value is not equal to 1, no Raman scattering correction is 
+%   applied to Rrs and initial model output is returned
 %
 %Outputs:
 %   a [1x1 Double]: Spectral absorption coefficient at lambda [m^-1]
@@ -72,12 +72,12 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   lambda [m^-1]
 %
 %   kappa [1x1 Double]: Value of the Raman scattering correction factor,
-%   kappa, applied to input Rrs (dim)
+%   kappa (dim), applied to input Rrs
 %
 %
 %Version History: 
 %2018-04-04: Original implementation in C written by David Dessailly
-%2020-03-23: Matlab version, D. Schaeffer 
+%2020-03-23: Matlab version, D. Jorge 
 %2022-09-01: Revised Matlab version, M. Kehrli
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -98,18 +98,18 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
     nw = 1.34; %Refractive index of seawater
     muw = cosd(asind(sind(sza)/nw)); %[dim]
 
-%% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient between surface and first attenuation depth of downwelling planar irradiance
+%% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient of downwelling planar irradiance between surface and first attenuation depth
     %In this version of the code, <Kd>_1 is assumed to be known and
-    %provided as input in units of [m^-1] In the 2018 paper, it is obtained
-    %from a separate neural network algorithm
+    %provided as input in units of [m^-1]. In the 2018 paper, it is
+    %obtained from a separate neural network algorithm
 
-%% Step 3: Calculation of b, the total scattering coefficient
+%% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
-    %provided as input in units of [m^-1] In the 2018 paper, bp is
-    %estimated from Chl calculated using OC4v4 model
+    %provided as input in units of [m^-1]. In the 2018 paper, bp is
+    %estimated from Chl calculated using the ocean color algorithm OC4v4
     b = bp + bw; %[m^-1]
 
-%% Step 4: Calculation of eta, the ratio of the water molecular scattering coefﬁcient to the total scattering coefﬁcient
+%% Step 4: Calculation of eta, the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient
     eta = bw/b; %[dim]
 
 %% Steps 5 & 7: Calculation of a and bb from Eqs. 9 and 8
@@ -153,8 +153,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
             LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + ...
             LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
                 
-        %Calculate using 2-D linear interpolation of a determined
-        %from the four bracketed values of eta and muw
+        %Calculate a using 2-D linear interpolation determined from
+        %bracketed values of eta and muw
         a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
           LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
           eta, muw); %[m^-1]   
@@ -179,8 +179,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
                LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
-        %Calculate bb using 2-D linear interpolation of bb determined
-        %from the four bracketed values of eta and muw
+        %Calculate bb using 2-D linear interpolation determined from
+        %bracketed values of eta and muw
         bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
               LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
               eta, muw); %[m^-1]     
@@ -231,8 +231,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                 LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + ...
                 LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
 
-            %Calculate using 2-D linear interpolation of a determined
-            %from bracketed values of eta and muw
+            %Calculate a using 2-D linear interpolation determined from
+            %bracketed values of eta and muw
             a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
               LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
               eta, muw); %[m^-1]   
@@ -257,8 +257,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                    LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
                    LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
-            %Calculate bb using 2-D linear interpolation of bb determined
-            %from bracketed values of eta and muw
+            %Calculate bb using 2-D linear interpolation determined from
+            %bracketed values of eta and muw
             bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
                   LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
                   eta, muw); %[m^-1]   
@@ -273,7 +273,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
 %% Steps 6 & 8: Calculation of anw and bbp
     anw = a - aw; % spectral nonwater absorption coefficient [m^-1]
-    bbw = bw/2;
+    bbw = bw/2; %spectral put seawater backscattering coefficient [m^-1]
     bbp = bb - bbw; %spectral particulate backscattering coefficient [m^-1]
 
 %% If output coefficients are negative, replace with NaN
@@ -299,17 +299,17 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Additional subfunctions that are called
-function idx = LS2_seek_pos(param,lut,type)
+function idx = LS2_seek_pos(param,LUT,type)
 %MK remake of LS2 seek_pos subroutine. The subroutine finds the leftmost
 %position of the input parameter in relation to its input LUT.
 %
 %Inputs: param, lut, type
 %   param (1x1 Double): Input muw or eta value
 %
-%   lut (nx1 Double): Look-up table of muw or eta values used to determine
+%   LUT (nx1 Double): Look-up table of muw or eta values used to determine
 %   coefficients in Loisel et al. 2018. If the input is associated with muw
-%   the lut must be 8x1 and sorted in descending order, and if the input is
-%   associated with eta the lut must be 21x1 and sorted in ascending order.
+%   the LUT must be 8x1 and sorted in descending order, and if the input is
+%   associated with eta the LUT must be 21x1 and sorted in ascending order.
 %
 %   type (String): Characterize param input. Valid values are 'muw' or
 %   'eta'. Other inputs will produce an error.
@@ -324,57 +324,57 @@ function idx = LS2_seek_pos(param,lut,type)
 %output
 %
 %Matthew Kehrli
-%Ocean Optics Research Laboratory
+%SIO Ocean Optics Research Laboratory
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Check function input arguments
 arguments 
     param (1,1) double
-    lut (:,1) double
+    LUT (:,1) double
     type (1,1) string
 end
 
 %muw lookup
 if strcmp(type,'muw')
-    if length(lut) ~= 8 || ~issorted(lut,'descend')
+    if length(LUT) ~= 8 || ~issorted(LUT,'descend')
         error(['Look-up table for mu_w must be a 8x1 array sorted in '...
             'descending order'])
     end
       
-   if param < min(lut)
+   if param < min(LUT)
         warning(['muw is outside the lower bound of look-up table.' ...
             ' Solutions of a and bb are output as nan.'])
        idx = nan;
    end
-   if param > max(lut)
+   if param > max(LUT)
         warning(['muw is outside the upper bound of look-up table.' ...
             ' Solutions of a and bb are output as nan.'])
        idx = nan;
    end
-   for i = 1:length(lut) - 1
-       if param <= lut(i) && param > lut(i+1)
+   for i = 1:length(LUT) - 1
+       if param <= LUT(i) && param > LUT(i+1)
            idx = i;
        end
    end
    
 %Eta lookup
 elseif strcmp(type,'eta')
-    if length(lut) ~= 21 || ~issorted(lut)
+    if length(LUT) ~= 21 || ~issorted(LUT)
         error(['Look-up table for eta must be a 21x1 array sorted in '...
             'ascending order'])
     end
-    if param < min(lut)
+    if param < min(LUT)
         warning(['eta is outside the lower bound of look-up table.' ...
             ' Solutions of a and bb are output as nan.'])
         idx = nan;
     end
-    if param > max(lut)
+    if param > max(LUT)
         warning(['eta is outside the upper bound of look-up table.' ...
             ' Solutions of a and bb are output nan.'])
         idx = nan;
     end
-    for i = 1:length(lut) - 1
-        if param >= lut(i) && param < lut(i+1)
+    for i = 1:length(LUT) - 1
+        if param >= LUT(i) && param < LUT(i+1)
             idx = i;
         end
     end 
@@ -402,7 +402,7 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
     %Updates:
     %
     %Matthew Kehrli
-    %Ocean Optics Research Laboratory
+    %SIO Ocean Optics Research Laboratory
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %Check function input arguments
@@ -412,7 +412,7 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
         rLUT (101,7) double
     end
     
-    %Intepolate minimum and maximum allowable bb/a values that calculate
+    %Interpolate minimum and maximum allowable bb/a values that calculate
     %kappa to the input wavelegnth.
     mins = interp1(rLUT(:,1),rLUT(:,6),lam,'linear');
     maxs = interp1(rLUT(:,1),rLUT(:,7),lam,'linear');
