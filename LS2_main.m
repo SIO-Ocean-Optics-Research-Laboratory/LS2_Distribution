@@ -56,8 +56,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   Flag_Raman [1x1 Double]: Flag to apply or omit a Raman scattering
 %   correction to Rrs If input value = 1, a Raman scattering correction is
 %   applied to Rrs and output is recalculated via a single iteration. If
-%   input value ne 1, no Raman scattering correction is applied to Rrs and
-%   initial model output is returned
+%   input value is not equal to 1, no Raman scattering correction is 
+%   applied to Rrs and initial model output is returned
 %
 %Outputs:
 %   a [1x1 Double]: Spectral absorption coefficient at lambda [m^-1]
