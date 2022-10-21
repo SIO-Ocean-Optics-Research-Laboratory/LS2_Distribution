@@ -105,7 +105,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
-    %provided as input in units of [m^-1] In the 2018 paper, bp is
+    %provided as input in units of [m^-1]. In the 2018 paper, bp is
     %estimated from Chl calculated using the ocean color algorithm OC4v4
     b = bp + bw; %[m^-1]
 
