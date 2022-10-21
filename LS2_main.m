@@ -324,7 +324,7 @@ function idx = LS2_seek_pos(param,LUT,type)
 %output
 %
 %Matthew Kehrli
-%SIO Ocean Optics Research Laboratory
+%Ocean Optics Research Laboratory, Scripps Institution of Oceanography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Check function input arguments
@@ -402,7 +402,7 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
     %Updates:
     %
     %Matthew Kehrli
-    %SIO Ocean Optics Research Laboratory
+    %Ocean Optics Research Laboratory, Scripps Institution of Oceanography
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %Check function input arguments
