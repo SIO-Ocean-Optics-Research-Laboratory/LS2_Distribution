@@ -103,8 +103,7 @@ input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
     0.107240919197775, 0.0985457095330905, 0.0816311474490525];
 
 %Input LS2 LUTs
-input_LS2_LUT = load('LS2_LUT.mat');
-input_LS2_LUT = input_LS2_LUT.LS2_LUT;
+load 'LS2_LUT.mat';
 
 %Input Raman Flag
 input_Flag_Raman = 1;
@@ -122,7 +121,7 @@ for i = 1:size(input_Rrs,1)
         [output_a(i,j), output_anw(i,j), output_bb(i,j), ...
             output_bbp(i,j), output_kappa(i,j)] = LS2_main(input_sza(i), ...
             input_lambda(j), input_Rrs(i,j), input_Kd(i,j), input_aw(j), ...
-            input_bw(j), input_bp(i,j), input_LS2_LUT, input_Flag_Raman);
+            input_bw(j), input_bp(i,j), LS2_LUT, input_Flag_Raman);
     end
 end
 
