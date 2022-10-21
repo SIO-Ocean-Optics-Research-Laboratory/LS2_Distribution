@@ -9,6 +9,16 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
+Published work that uses this software cite the journal article that presents
+the development and validation of the model:
+
+Loisel, H., Stramski, D., Dessailly, D., Jamet, C., Li, L., & Reynolds, R. A.
+(2018). An Inverse Model for Estimating the Optical Absorption and
+Backscattering Coefficients of Seawater From Remote‐Sensing Reflectance Over
+a Broad Range of Oceanic and Coastal Marine Environments. Journal of
+Geophysical Research. Oceans, 123(3), 2141–2171. 
+https://doi.org/10.1002/2017JC013632
+
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
