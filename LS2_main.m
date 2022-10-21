@@ -16,7 +16,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   lambda [1x1 double]: Light wavelength in vacuum [nm]; valid range is
 %   302-702 nm
 %
-%   Rrs [1x1 double]: Spectral remote sensing reflectance at lambda [sr^-1]
+%   Rrs [1x1 double]: Spectral remote-sensing reflectance at lambda [sr^-1]
 %
 %   Kd [1x1 double]: Average spectral attenuation coefficient of
 %   downwelling planar irradiance between the surface and first attenuation
@@ -312,7 +312,7 @@ function idx = LS2_seek_pos(param,LUT,type)
 %   associated with eta the LUT must be 21x1 and sorted in ascending order.
 %
 %   type (String): Characterize param input. Valid values are 'muw' or
-%   'eta'. Other inputs will produce and error.
+%   'eta'. Other inputs will produce an error.
 %
 %Output: idx
 %   idx (1x1 Double): Leftmost position/index of input param in relation to
@@ -334,7 +334,7 @@ arguments
     type (1,1) string
 end
 
-%mu_w lookup
+%muw lookup
 if strcmp(type,'muw')
     if length(LUT) ~= 8 || ~issorted(LUT,'descend')
         error(['Look-up table for mu_w must be a 8x1 array sorted in '...
