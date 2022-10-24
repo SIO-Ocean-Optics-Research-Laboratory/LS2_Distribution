@@ -13,8 +13,12 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %Required Function Inputs:
 %   sza [1x1 double]: Solar zenith angle [deg]
 %
-%   lambda [1x1 double]: Light wavelength in vacuum [nm]; valid range is
-%   302-702 nm
+%   lambda [1x1 double]: Light wavelength in vacuum [nm]
+%   The nominal spectral range intended for application of LS2 model is 350-700 nm.
+%   However, the model has not yet been fully validated over the entire nominal spectral range, especially in the UV.
+%   In addition, the existing validation analysis in the visible spectral range indicated that different output variables
+%   of LS2 model exhibit uncertainties that can vary significantly with wavelength across the visible spectral range
+%   (see Loisel et al. 2018 for more details on validation results and potential uncertainties). 
 %
 %   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light wavelength lambda 
 %
@@ -22,8 +26,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   downwelling planar irradiance, <Kd>_1 [m^-1] at lambda, averaged between the sea surface and first attenuation
 %   depth  
 %   
-%   aw [1x1 double]: Spectral pure seawater absorption coefficient [m^-1] at
-%   lambda 
+%   aw [1x1 double]: Spectral pure seawater absorption coefficient [m^-1] at lambda 
 %
 %   bw [1x1 double]: Spectral pure seawater scattering coefficient [m^-1] at lambda 
 %
@@ -431,7 +434,7 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
         kappas = rLUT(:,2).*bb_a.^3 + rLUT(:,3).*bb_a.^2 + rLUT(:,4).*bb_a ...
             + rLUT(:,5);
         %Calculate output kappa using a 1-D linear interpolation to the
-        %input wavlength
+        %input wavelength
         kappa = interp1(rLUT(:,1),kappas,lam,'linear');
     else
         kappa = nan;
