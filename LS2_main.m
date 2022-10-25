@@ -7,42 +7,52 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %and backscattering coefficients of seawater from remote-sensing
 %reflectance over a broad range of oceanic and coastal marine environments.
 %Journal of Geophysical Research: Oceans, 123, 2141–2171. doi:
-%10.1002/2017JC013632 Note: Labeled "Steps" in this code refer to Table 1
-%of this paper
+%10.1002/2017JC013632 
 %
-%Required Function Inputs:
+%Note: Labeled "Steps" in this code refer to Table 1 of this paper
+%
+%Required Function Inputs: sza, lambda, Rrs, Kd, aw, bw, bp, LS2_LUT,
+%Flag_Raman
 %   sza [1x1 double]: Solar zenith angle [deg]
 %
-%   lambda [1x1 double]: Light wavelength in vacuum [nm]
-%   The nominal spectral range intended for application of LS2 model is 350-700 nm.
-%   However, the model has not yet been fully validated over the entire nominal spectral range, especially in the UV.
-%   In addition, the existing validation analysis in the visible spectral range indicated that different output variables
-%   of LS2 model exhibit uncertainties that can vary significantly with wavelength across the visible spectral range
-%   (see Loisel et al. 2018 for more details on validation results and potential uncertainties). 
+%   lambda [1x1 double]: Light wavelength in vacuum [nm] The nominal
+%   spectral range intended for application of LS2 model is 350-700 nm.
+%   However, the model has not yet been fully validated over the entire
+%   nominal spectral range, especially in the UV. In addition, the existing
+%   validation analysis in the visible spectral range indicated that
+%   different output variables of LS2 model exhibit uncertainties that can
+%   vary significantly with wavelength across the visible spectral range
+%   (see Loisel et al. 2018 for more details on validation results and
+%   potential uncertainties).
 %
-%   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light wavelength lambda 
+%   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light
+%   wavelength lambda
 %
-%   Kd [1x1 double]: Spectral attenuation coefficient of
-%   downwelling planar irradiance, <Kd>_1 [m^-1] at lambda, averaged between the sea surface and first attenuation
-%   depth  
+%   Kd [1x1 double]: Spectral attenuation coefficient of downwelling planar
+%   irradiance, <Kd>_1 [m^-1] at lambda, averaged between the sea surface
+%   and first attenuation depth
 %   
-%   aw [1x1 double]: Spectral pure seawater absorption coefficient [m^-1] at lambda 
+%   aw [1x1 double]: Spectral pure seawater absorption coefficient [m^-1]
+%   at lambda
 %
-%   bw [1x1 double]: Spectral pure seawater scattering coefficient [m^-1] at lambda 
+%   bw [1x1 double]: Spectral pure seawater scattering coefficient [m^-1]
+%   at lambda
 %
-%   bp [1x1 double]: Spectral particulate scattering coefficient [m^-1] at lambda
+%   bp [1x1 double]: Spectral particulate scattering coefficient [m^-1] at
+%   lambda
 %   
-%
 %   LS2_LUT [1x1 struct]: Structure containing five required look-up
 %   tables; can be loaded via load('LS2_LUT.mat');
 %
 %       LUT.muw [8x1 double]:  8 values of muw (in descending order) used
 %       to construct the a and bb LUTs
-%       where muw is the cosine of the angle of refraction of the solar beam just beneath the sea surface
+%       where muw is the cosine of the angle of refraction of the solar
+%       beam just beneath the sea surface
 %       
-%       LUT.eta [21x1 double]: 21 values of eta (in ascending order) used 
-%       to construct the a and bb LUTs
-%       where eta is the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient of seawater
+%       LUT.eta [21x1 double]: 21 values of eta (in ascending order) used
+%       to construct the a and bb LUTs where eta is the ratio of the pure
+%       seawater (molecular) scattering coefficient to the total scattering
+%       coefficient of seawater
 %       
 %       LUT.a [21x8x4 double]: Look-up table of four polynomial
 %       coefficients used to calculate the absorption coefficient from Eq.
@@ -64,21 +74,19 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   input value is not equal to 1, no Raman scattering correction is 
 %   applied to Rrs and initial model output is returned
 %
-%Outputs:
-%   a [1x1 Double]: Spectral absorption coefficient [m^-1] at lambda 
+%Outputs: a, anw, bb, bbp, kappa
+%   a [1x1 Double]: Spectral absorption coefficient [m^-1] at lambda
 % 
-%   anw [1x1 Double]: Spectral nonwater absorption coefficient [m^-1] at lambda
-%   
+%   anw [1x1 Double]: Spectral nonwater absorption coefficient [m^-1] at
+%   lambda
 %     
 %   bb [1x1 Double]: Spectral backscattering coefficient [m^-1] at lambda
-%   
 %
-%   bbp (1x1 Double): Spectral particulate backscattering coefficient [m^-1] at
-%   lambda 
+%   bbp (1x1 Double): Spectral particulate backscattering coefficient
+%   [m^-1] at lambda
 %
 %   kappa [1x1 Double]: Value of the Raman scattering correction factor,
 %   kappa (dim), applied to input Rrs
-%
 %
 %Version History: 
 %2018-04-04: Original implementation in C written by David Dessailly
@@ -112,7 +120,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
     %provided as input in units of [m^-1]. In the 2018 paper, bp is
-    %estimated from chlorophyll-a concentration (Chl) where Chla is calculated from spectral remote-sensiung reflectance using the ocean color algorithm OC4v4
+    %estimated from chlorophyll-a concentration (Chl) where Chla is
+    %calculated from spectral remote-sensiung reflectance using the ocean
+    %color algorithm OC4v4
     b = bp + bw; %[m^-1]
 %   DARIUSZ: I HAVE RESERVATIONS ABOUT STEP 3 IN A SENSE THAT THIS VERSION OF OUR CODE DOES NOT PROVIDE THE USER WITH A FULL CAPABILITY TO CALCULATE a AND bb FROM Rrs.
 %   ALTHOUGH GETTING bp FROM Chl IS ONE POTENTIAL OPTION, WE DO NOT HAVE ANOTHER OPTION TO OFFER AT THIS TIME, SO I THINK WE SHOULD OFFER WITH THIS CODE A FUNCTION
@@ -130,7 +140,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
         idx_eta = LS2_seek_pos(eta,LS2_LUT.eta,'eta');
         idx_muw = LS2_seek_pos(muw,LS2_LUT.muw,'muw');
         
-        %If eta or mu is outside of the bounds of LUTs return nan outputs
+        %if eta or mu is outside of the bounds of LUTs return nan outputs
         if isnan(idx_eta) || isnan(idx_muw)
             a = nan;
             anw = nan;
@@ -164,7 +174,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
             LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + ...
             LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
                 
-        %Calculate a using 2-D linear interpolation determined from
+        %calculate a using 2-D linear interpolation determined from
         %bracketed values of eta and muw
         a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
           LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
@@ -190,7 +200,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
                LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
-        %Calculate bb using 2-D linear interpolation determined from
+        %calculate bb using 2-D linear interpolation determined from
         %bracketed values of eta and muw
         bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
               LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
@@ -211,10 +221,10 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
     %and recalculate a and bb the same as above. Otherwise no correction is
     %applied and original values are returned with kappa value of 1
     if Flag_Raman 
-        %Calls subfunction LS2_calc_kappa
+        %call subfunction LS2_calc_kappa
         kappa = LS2_calc_kappa(bb/a,lambda,LS2_LUT.kappa);
 
-        %Apply Raman scattering correction to Rrs and recalculate a & bb
+        %apply Raman scattering correction to Rrs and recalculate a & bb
         if ~isnan(kappa)
             Rrs = Rrs.*kappa;
             
@@ -242,7 +252,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                 LS2_LUT.a(idx_eta+1,idx_muw+1,3).*Rrs.^2 + ...
                 LS2_LUT.a(idx_eta+1,idx_muw+1,4).*Rrs.^3);
 
-            %Calculate a using 2-D linear interpolation determined from
+            %calculate a using 2-D linear interpolation determined from
             %bracketed values of eta and muw
             a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
               LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
@@ -268,7 +278,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                    LS2_LUT.bb(idx_eta+1,idx_muw+1,2).*Rrs.^2 + ...
                    LS2_LUT.bb(idx_eta+1,idx_muw+1,3).*Rrs.^3);
 
-            %Calculate bb using 2-D linear interpolation determined from
+            %calculate bb using 2-D linear interpolation determined from
             %bracketed values of eta and muw
             bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
                   LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
@@ -312,22 +322,22 @@ end
 %Additional subfunctions that are called
 function idx = LS2_seek_pos(param,LUT,type)
 %MK remake of LS2 seek_pos subroutine. The subroutine finds the leftmost
-%position of the input parameter in relation to its input LUT.
+%position of the input parameter in relation to its input LUT
 %
-%Inputs: param, lut, type
+%Inputs: param, LUT, type
 %   param (1x1 Double): Input muw or eta value
 %
 %   LUT (nx1 Double): Look-up table of muw or eta values used to determine
 %   coefficients in Loisel et al. 2018. If the input is associated with muw
 %   the LUT must be 8x1 and sorted in descending order, and if the input is
-%   associated with eta the LUT must be 21x1 and sorted in ascending order.
+%   associated with eta the LUT must be 21x1 and sorted in ascending order
 %
 %   type (String): Characterize param input. Valid values are 'muw' or
-%   'eta'. Other inputs will produce an error.
+%   'eta'. Other inputs will produce an error
 %
 %Output: idx
 %   idx (1x1 Double): Leftmost position/index of input param in relation to
-%   its LUT.
+%   its LUT
 %
 %Created: September 8, 2021
 %Completed: September 8, 2021
@@ -338,7 +348,7 @@ function idx = LS2_seek_pos(param,LUT,type)
 %Ocean Optics Research Laboratory, Scripps Institution of Oceanography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Check function input arguments
+%check function input arguments
 arguments 
     param (1,1) double
     LUT (:,1) double
@@ -368,7 +378,7 @@ if strcmp(type,'muw')
        end
    end
    
-%Eta lookup
+%eta lookup
 elseif strcmp(type,'eta')
     if length(LUT) ~= 21 || ~issorted(LUT)
         error(['Look-up table for eta must be a 21x1 array sorted in '...
@@ -392,21 +402,21 @@ elseif strcmp(type,'eta')
 end
 end
 
-function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
+function kappa = LS2_calc_kappa(bb_a,lambda,rLUT)
     %The subroutine determines kappa using a linear
-    %interpolation/extrapolation from the Raman scattering look-up tables.
+    %interpolation/extrapolation from the Raman scattering look-up tables
     %
-    %Inputs: bb_a, lam, r
+    %Inputs: bb_a, lam, rLUT
     %   bb_a (1x1 Double): Backscattering to absorption coefficient ratio
-    %   output from LS2 model.
+    %   output from LS2 model
     %
-    %   lam (1x1 Double): Wavelength of bb/a ratio.
+    %   lam (1x1 Double): Wavelength of bb/a ratio
     %
-    %   rLUT (101x7 Double): Look-up table for kappa.
+    %   rLUT (101x7 Double): Look-up table for kappa
     %
-    %Output: a
+    %Output: kappa
     %   kappa (1x1 Double): Value of Raman scattering correction at a
-    %   particular bb/a ratio and wavelength.
+    %   particular bb/a ratio and wavelength
     %
     %Created: September 14, 2021
     %Completed: September 14, 2021
@@ -416,29 +426,29 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
     %Ocean Optics Research Laboratory, Scripps Institution of Oceanography
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %Check function input arguments
+    %check function input arguments
     arguments
         bb_a (1,1) double
-        lam (1,1) double
+        lambda (1,1) double
         rLUT (101,7) double
     end
     
-    %Interpolate minimum and maximum allowable bb/a values that calculate
+    %interpolate minimum and maximum allowable bb/a values that calculate
     %kappa to the input wavelegnth.
-    mins = interp1(rLUT(:,1),rLUT(:,6),lam,'linear');
-    maxs = interp1(rLUT(:,1),rLUT(:,7),lam,'linear');
+    mins = interp1(rLUT(:,1),rLUT(:,6),lambda,'linear');
+    maxs = interp1(rLUT(:,1),rLUT(:,7),lambda,'linear');
     
-    %Check if bb/a ratio falls within min/max range
+    %check if bb/a ratio falls within min/max range
     if bb_a >= mins && bb_a <= maxs
-        %Calculate all kappas for the input bb/a ratio
+        %calculate all kappas for the input bb/a ratio
         kappas = rLUT(:,2).*bb_a.^3 + rLUT(:,3).*bb_a.^2 + rLUT(:,4).*bb_a ...
             + rLUT(:,5);
-        %Calculate output kappa using a 1-D linear interpolation to the
+        %calculate output kappa using a 1-D linear interpolation to the
         %input wavelength
-        kappa = interp1(rLUT(:,1),kappas,lam,'linear');
+        kappa = interp1(rLUT(:,1),kappas,lambda,'linear');
     else
         kappa = nan;
-        %Send warning message to user that no Raman correction is applied
+        %send warning message to user that no Raman correction is applied
         %to input
         warning(['No Raman Correction since bb/a value is outside of the' ...
             ' acceptable range. Kappa set to nan and no correction is' ...

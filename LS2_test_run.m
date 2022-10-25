@@ -1,31 +1,39 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Test script for the LS2 code. The LS2 code is run for ten specified inputs
-%and the resulting output is saved to LS2_test_run_output_YYYYMMDD.xls file
-%for comparison with provided output file LS2_test_run_output.xls.
+%and the resulting output from the test script is saved to
+%LS2_test_run_YYYYMMDD.xls file for comparison with provided output
+%file LS2_test_run.xls
+%
+%Reference: Loisel, H., D. Stramski, D. Dessaily, C. Jamet, L. Li, and R.
+%A. Reynolds. 2018. An inverse model for estimating the optical absorption
+%and backscattering coefficients of seawater from remote-sensing
+%reflectance over a broad range of oceanic and coastal marine environments.
+%Journal of Geophysical Research: Oceans, 123, 2141–2171. doi:
+%10.1002/2017JC013632 
 %
 %Created: October 12, 2022
 %Completed: October 14, 2022
 %Updates: N/A
 %
-%Matthew Kehrli
+%M. Kehrli, D. Stramski, and R. A. Reynolds 
 %Ocean Optics Research Laboratory, Scripps Institution of Oceanography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Clear command window and workspace; close figures
+%clear command window and workspace; close figures
 clc; clearvars; close all;
 
-%Define input parameters
+%define input parameters:
 
-%Solar zenith angle input [deg]
+%input solar zenith angle [deg]
 input_sza = [58.3534804715254; 57.8478623967075; 55.7074826164700; ...
     56.3604406592725; 56.4697386744023; 56.8356539563103; ...
     46.7609493705841; 42.9575051280531; 39.1258070531710; ...
     36.7202617271538];
 
-%Input Wavelengths [nm]
+%input Wavelengths [nm]
 input_lambda = [412, 443, 490, 510, 555, 670];
 
-%Input Rrs [sr^-1]
+%input Rrs [sr^-1]
 input_Rrs = [0.00233524115013000, 0.00294175586230000, ...
     0.00393113794469000, 0.00340969897475000, 0.00229711245356000, ...
     0.000126252474968051;0.00389536285161000,0.00380553119300000, ...
@@ -48,7 +56,7 @@ input_Rrs = [0.00233524115013000, 0.00294175586230000, ...
     0.00511788480497000, 0.00358608311014000, 0.00161083692320000, ...
     3.81378558561512e-05];
 
-%Input Kd [m^-1]
+%input Kd [m^-1]
 input_Kd = [0.187632830961948, 0.138869886516291, 0.0903870213746760, ...
     0.0887979802802584, 0.105697824445020, 0.562373761609887; ...
     0.0959924017590809, 0.0776637266248738, 0.0621434486477123, ...
@@ -70,17 +78,17 @@ input_Kd = [0.187632830961948, 0.138869886516291, 0.0903870213746760, ...
     0.0497417842712074, 0.0416885187358688, 0.0380380139571626, ...
     0.0449932910491427, 0.0717349865479659, 0.474223095982504];
 
-%Input aw [m^-1]
+%input aw [m^-1]
 input_aw = [0.00467300000000000, 0.00721000000000000, ...
     0.0150000000000000, 0.0325000000000000,0.0592000000000000, ...
     0.439000000000000];
 
-%Input bw [m^-1]
+%input bw [m^-1]
 input_bw = [0.00658572000000000, 0.00477700000000000, ...
     0.00309800000000000,0.00259800000000000,0.00184881000000000, ...
     0.000800000000000000];
 
-%Input bp [m^-1]
+%input bp [m^-1]
 input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
     0.299289309014959, 0.275022608284016, 0.227817235220342; ...
     0.222636201160542, 0.207056692727185, 0.187196152812537, ...
@@ -102,20 +110,21 @@ input_bp = [0.370479484460264, 0.344554283516092, 0.311505199178834, ...
     0.132749681531226, 0.123460200430847, 0.111618099573194, ...
     0.107240919197775, 0.0985457095330905, 0.0816311474490525];
 
-%Input LS2 LUTs
+%input LS2 LUTs
 load 'LS2_LUT.mat';
 
-%Input Raman Flag
+%input Raman Flag
 input_Flag_Raman = 1;
 
-%Preallocate output variables
+%preallocate output variables
 output_a = nan(size(input_Rrs));
 output_anw = nan(size(input_Rrs));
 output_bb = nan(size(input_Rrs));
 output_bbp = nan(size(input_Rrs));
 output_kappa = nan(size(input_Rrs));
 
-%Loop to run LS2 for all samples at every wavelength
+%loop to run LS2 for all samples at every wavelength and calculate outputs
+%with LS2
 for i = 1:size(input_Rrs,1)
     for j = 1:size(input_Rrs,2)
         [output_a(i,j), output_anw(i,j), output_bb(i,j), ...
@@ -125,7 +134,7 @@ for i = 1:size(input_Rrs,1)
     end
 end
 
-%Save inputs and outputs into an excel file
+%save inputs and outputs into an excel file
 for i = 1:size(input_Rrs,2)
             T = table(repmat(input_lambda(i),size(input_Rrs,1),1), ...
                 input_sza, input_Rrs(:,i), input_Kd(:,i), ...
@@ -138,6 +147,6 @@ for i = 1:size(input_Rrs,2)
                 'Input Kd [1/m]' 'Input aw [1/m]' 'Input bw [1/m]' 'Input bp [1/m]' 'Ouput a [1/m]' ...
                 'Output anw [1/m]' 'Output bb [1/m]' 'Output bbp [1/m]' 'Output kappa [dim]'};
             FormatOut = 'YYYYMMDD';
-            outfile=[cd '\LS2_test_run_output_' datestr(datetime,FormatOut)];
+            outfile=[cd '\LS2_test_run_' datestr(datetime,FormatOut)];
             writetable(T,outfile,'FileType','spreadsheet','Sheet',[num2str(input_lambda(i)) ' nm'])
 end
