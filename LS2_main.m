@@ -13,32 +13,37 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %Required Function Inputs:
 %   sza [1x1 double]: Solar zenith angle [deg]
 %
-%   lambda [1x1 double]: Light wavelength in vacuum [nm]; valid range is
-%   302-702 nm
+%   lambda [1x1 double]: Light wavelength in vacuum [nm]
+%   The nominal spectral range intended for application of LS2 model is 350-700 nm.
+%   However, the model has not yet been fully validated over the entire nominal spectral range, especially in the UV.
+%   In addition, the existing validation analysis in the visible spectral range indicated that different output variables
+%   of LS2 model exhibit uncertainties that can vary significantly with wavelength across the visible spectral range
+%   (see Loisel et al. 2018 for more details on validation results and potential uncertainties). 
 %
-%   Rrs [1x1 double]: Spectral remote-sensing reflectance at lambda [sr^-1]
+%   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light wavelength lambda 
 %
-%   Kd [1x1 double]: Average spectral attenuation coefficient of
-%   downwelling planar irradiance between the surface and first attenuation
-%   depth, <Kd>_1, at lambda [m^-1]
+%   Kd [1x1 double]: Spectral attenuation coefficient of
+%   downwelling planar irradiance, <Kd>_1 [m^-1] at lambda, averaged between the sea surface and first attenuation
+%   depth  
 %   
-%   aw [1x1 double]: Pure seawater spectral absorption coefficient at
-%   lambda [m^-1]
+%   aw [1x1 double]: Spectral pure seawater absorption coefficient [m^-1] at lambda 
 %
-%   bw [1x1 double]: Pure seawater scattering coefficient at lambda [m^-1]
+%   bw [1x1 double]: Spectral pure seawater scattering coefficient [m^-1] at lambda 
 %
-%   bp [1x1 double]: Spectral particulate scattering coefficient at lambda
-%   [m^-1]
+%   bp [1x1 double]: Spectral particulate scattering coefficient [m^-1] at lambda
+%   
 %
 %   LS2_LUT [1x1 struct]: Structure containing five required look-up
 %   tables; can be loaded via load('LS2_LUT.mat');
 %
 %       LUT.muw [8x1 double]:  8 values of muw (in descending order) used
-%       to construct the a and bb LUTs 
+%       to construct the a and bb LUTs
+%       where muw is the cosine of the angle of refraction of the solar beam just beneath the sea surface
 %       
 %       LUT.eta [21x1 double]: 21 values of eta (in ascending order) used 
 %       to construct the a and bb LUTs
-%
+%       where eta is the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient of seawater
+%       
 %       LUT.a [21x8x4 double]: Look-up table of four polynomial
 %       coefficients used to calculate the absorption coefficient from Eq.
 %       9 of Loisel et al. 2018
@@ -60,16 +65,16 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   applied to Rrs and initial model output is returned
 %
 %Outputs:
-%   a [1x1 Double]: Spectral absorption coefficient at lambda [m^-1]
+%   a [1x1 Double]: Spectral absorption coefficient [m^-1] at lambda 
 % 
-%   anw [1x1 Double]: Spectral nonwater absorption coefficient at lambda
-%   [m^-1]
+%   anw [1x1 Double]: Spectral nonwater absorption coefficient [m^-1] at lambda
+%   
 %     
-%   bb [1x1 Double]: Spectral backscattering coefficient at lambda
-%   [m^-1]
+%   bb [1x1 Double]: Spectral backscattering coefficient [m^-1] at lambda
+%   
 %
-%   bbp (1x1 Double): Spectral particulate backscattering coefficient at
-%   lambda [m^-1]
+%   bbp (1x1 Double): Spectral particulate backscattering coefficient [m^-1] at
+%   lambda 
 %
 %   kappa [1x1 Double]: Value of the Raman scattering correction factor,
 %   kappa (dim), applied to input Rrs
@@ -77,8 +82,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %
 %Version History: 
 %2018-04-04: Original implementation in C written by David Dessailly
-%2020-03-23: Matlab version, D. Jorge 
+%2020-03-23: Original Matlab version, D. Jorge 
 %2022-09-01: Revised Matlab version, M. Kehrli
+%DARIUSZ: WHEN WE ARE FINISHED, ADD DATE AND Final Revised Matab version: M. Kehrli, R. A. Reynolds and D. Stramski
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Check function arguments and existence of LUTs
@@ -98,7 +104,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
     nw = 1.34; %Refractive index of seawater
     muw = cosd(asind(sind(sza)/nw)); %[dim]
 
-%% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient of downwelling planar irradiance between surface and first attenuation depth
+%% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient of downwelling planar irradiance between the sea surface and first attenuation depth
     %In this version of the code, <Kd>_1 is assumed to be known and
     %provided as input in units of [m^-1]. In the 2018 paper, it is
     %obtained from a separate neural network algorithm
@@ -106,8 +112,13 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
     %provided as input in units of [m^-1]. In the 2018 paper, bp is
-    %estimated from Chl calculated using the ocean color algorithm OC4v4
+    %estimated from chlorophyll-a concentration (Chl) where Chla is calculated from spectral remote-sensiung reflectance using the ocean color algorithm OC4v4
     b = bp + bw; %[m^-1]
+%   DARIUSZ: I HAVE RESERVATIONS ABOUT STEP 3 IN A SENSE THAT THIS VERSION OF OUR CODE DOES NOT PROVIDE THE USER WITH A FULL CAPABILITY TO CALCULATE a AND bb FROM Rrs.
+%   ALTHOUGH GETTING bp FROM Chl IS ONE POTENTIAL OPTION, WE DO NOT HAVE ANOTHER OPTION TO OFFER AT THIS TIME, SO I THINK WE SHOULD OFFER WITH THIS CODE A FUNCTION
+%   WHICH CALCULATES bp FROM Chl, ALBEIT I AM NOT SURE IF WE SHOULD ALSO INCLUDE IN THIS OPTION THE CALCULATION OF Chl FROM REFLECTANCE SUCH AS OC4v4.
+%   AS A MINIMUM, HOWEVER, I THINK WE SHOULD CONSIDER HAVING A SIMPLE FUNCTION (PROBABLY EXTERNAL TO THE MAIN CODE) TO CALCULATE bp FROM Chl. THIS WAY THE USER 
+%   WILL ONLY HAVE TO WORRY ABOUT PROVIDING Chl AS ADDITIONAL INPUT TO OUR MODEL RATHER THAN ALSO HAVE A CODE THAT CONVERTS Chl TO bp.
 
 %% Step 4: Calculation of eta, the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient
     eta = bw/b; %[dim]
@@ -423,7 +434,7 @@ function kappa = LS2_calc_kappa(bb_a,lam,rLUT)
         kappas = rLUT(:,2).*bb_a.^3 + rLUT(:,3).*bb_a.^2 + rLUT(:,4).*bb_a ...
             + rLUT(:,5);
         %Calculate output kappa using a 1-D linear interpolation to the
-        %input wavlength
+        %input wavelength
         kappa = interp1(rLUT(:,1),kappas,lam,'linear');
     else
         kappa = nan;
