@@ -24,6 +24,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   vary significantly with wavelength across the visible spectral range
 %   (see Loisel et al. 2018 for more details on validation results and
 %   potential uncertainties).
+%%% DS add clarification to lambda so that is is consistent with KdNN
+%
 %
 %   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light
 %   wavelength lambda
