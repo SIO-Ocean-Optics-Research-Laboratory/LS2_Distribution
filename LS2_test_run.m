@@ -15,7 +15,7 @@
 %Completed: October 14, 2022
 %Updates: N/A
 %
-%M. Kehrli, D. Stramski, and R. A. Reynolds 
+%M. Kehrli, R. A. Reynolds, and D. Stramski 
 %Ocean Optics Research Laboratory, Scripps Institution of Oceanography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
