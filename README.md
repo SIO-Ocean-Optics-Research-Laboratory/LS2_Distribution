@@ -3,7 +3,6 @@
 
 LS2 is a bulk inversion model for estimating the seawater inherent optical properties of the spectral absorption, a(λ), and backscattering, b<sub>b</sub>(λ), coefficients as well as their non-water components a<sub>nw</sub>(λ) and b<sub>bp</sub>(λ) from measurements of remote-sensing reflectance, R<sub>rs</sub>(λ). The model avoids assumptions about the spectral shapes of a(λ) and b<sub>b</sub>(λ) and can be implemented as the first step in a multi-step semianalytical approach with additional absorption partitioning models to derive absorption coefficients of seawater constituents either from in situ or remote-sensing observations of R<sub>rs</sub>(λ). The complete development and validation of the LS2 model is described in [Loisel et al. 2018] (https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2017JC013632). The LS2 model builds upon and extends the previous version of inverse reflectance model described in Loisel and Stramski 2000 (https://doi.org/10.1364/AO.39.003001). The LS2 model code was originally written by our collaborators from France led by Dr. Hubert Loisel. The presented version of LS2 model source code is in MATLAB file format. In this version of LS2 code we introduced a number of changes with a primary purpose to streamline the structure of the code and facilitate its application by users.
 
-
 This README document provides information about the files within the LS2_Distribution repository.
 
 ---
