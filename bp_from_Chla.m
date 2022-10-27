@@ -1,4 +1,4 @@
-function [bp] = bp_from_Chla(Chla,lambda)
+function [bp] = Bp_from_Chla(Chla,lambda)
 % Implement the  empirical relationship from Morel and Maritorena 2001 to
 % calculate the particulate scattering coefficient (bp) at preselected
 % output light wavelengths (lambda) using the input value of chlorophyll-a
