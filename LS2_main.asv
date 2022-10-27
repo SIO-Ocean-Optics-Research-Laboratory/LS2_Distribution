@@ -23,10 +23,24 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   not yet been fully validated over the entire nomical spectral range,
 %   especially in the UV. In addition, the existing validation analysis in
 %   the visible spectral range indicated that different output variables of
-%   the LS2 model exhibit uncertainties hat can vary significantly with
-%   wavelength across the visible spectral range (see Loisel et al. 2018
-%   for more details on validation results and potential uncertainties).
-%   Note: light wavelengths are in vacuum
+%   
+
+%%Light wavelength in vacuum [nm] The nominal
+%   spectral range intended for application of LS2 model is 350-700 nm.
+%   However, the model has not yet been fully validated over the entire
+%   nominal spectral range, especially in the UV. In addition, the existing
+%   validation analysis in the visible spectral range indicated that
+%   different output variables of LS2 model exhibit uncertainties that can
+%   vary significantly with wavelength across the visible spectral range
+%   (see Loisel et al. 2018 for more details on validation results and
+%   potential uncertainties).
+%%% DS add clarification to lambda so that is is consistent with KdNN
+
+%Output light wavelength [nm] at which the desired
+%   value of Kd is estimated for a given input. Lambda serves as an input
+%   parameter for the Kd_NN function and is defined by user. Note: light
+%   wavelengths are in vacuum
+%
 %
 %   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light
 %   wavelength lambda
@@ -123,10 +137,15 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
     %provided as input in units of [m^-1]. In the 2018 paper, bp is
-    %estimated from chlorophyll-a concentration (Chl) using where Chla is
+    %estimated from chlorophyll-a concentration (Chl) where Chla is
     %calculated from spectral remote-sensiung reflectance using the ocean
     %color algorithm OC4v4
     b = bp + bw; %[m^-1]
+%   DARIUSZ: I HAVE RESERVATIONS ABOUT STEP 3 IN A SENSE THAT THIS VERSION OF OUR CODE DOES NOT PROVIDE THE USER WITH A FULL CAPABILITY TO CALCULATE a AND bb FROM Rrs.
+%   ALTHOUGH GETTING bp FROM Chl IS ONE POTENTIAL OPTION, WE DO NOT HAVE ANOTHER OPTION TO OFFER AT THIS TIME, SO I THINK WE SHOULD OFFER WITH THIS CODE A FUNCTION
+%   WHICH CALCULATES bp FROM Chl, ALBEIT I AM NOT SURE IF WE SHOULD ALSO INCLUDE IN THIS OPTION THE CALCULATION OF Chl FROM REFLECTANCE SUCH AS OC4v4.
+%   AS A MINIMUM, HOWEVER, I THINK WE SHOULD CONSIDER HAVING A SIMPLE FUNCTION (PROBABLY EXTERNAL TO THE MAIN CODE) TO CALCULATE bp FROM Chl. THIS WAY THE USER 
+%   WILL ONLY HAVE TO WORRY ABOUT PROVIDING Chl AS ADDITIONAL INPUT TO OUR MODEL RATHER THAN ALSO HAVE A CODE THAT CONVERTS Chl TO bp.
 
 %% Step 4: Calculation of eta [dim], the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient
     eta = bw/b;
@@ -174,9 +193,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
                 
         %calculate a using 2-D linear interpolation determined from
         %bracketed values of eta and muw
-        a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1),...
-          LS2_LUT.muw(idx_muw:idx_muw+1),[a00 a10; a01 a11],...
-          eta,muw); %[m^-1]   
+        a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+          LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
+          eta, muw); %[m^-1]   
 
         %calculation of bb from Eq. 8
         
@@ -200,9 +219,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
         %calculate bb using 2-D linear interpolation determined from
         %bracketed values of eta and muw
-        bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1),...
-              LS2_LUT.muw(idx_muw:idx_muw+1),[bb00 bb10; bb01 bb11],...
-              eta,muw); %[m^-1]     
+        bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+              LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
+              eta, muw); %[m^-1]     
           
     %return NaNs if either eta or muw are NaNs
     else
@@ -252,9 +271,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
             %calculate a using 2-D linear interpolation determined from
             %bracketed values of eta and muw
-            a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1),...
-              LS2_LUT.muw(idx_muw:idx_muw+1),[a00 a10; a01 a11],...
-              eta,muw); %[m^-1]   
+            a = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+              LS2_LUT.muw(idx_muw:idx_muw+1), [a00 a10; a01 a11], ...
+              eta, muw); %[m^-1]   
 
             %calculation of bb from Eq. 8
 
@@ -278,9 +297,9 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
             %calculate bb using 2-D linear interpolation determined from
             %bracketed values of eta and muw
-            bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1),...
-                  LS2_LUT.muw(idx_muw:idx_muw+1),[bb00 bb10; bb01 bb11],...
-                  eta,muw); %[m^-1]   
+            bb = interp2(LS2_LUT.eta(idx_eta:idx_eta+1), ...
+                  LS2_LUT.muw(idx_muw:idx_muw+1), [bb00 bb10; bb01 bb11], ...
+                  eta, muw); %[m^-1]   
         end
     
     %if Flag is not 1, do nothing and return original values of a, anw, bb,
@@ -356,17 +375,17 @@ end
 %muw lookup
 if strcmp(type,'muw')
     if length(LUT) ~= 8 || ~issorted(LUT,'descend')
-        error(['Look-up table for mu_w must be a 8x1 array sorted in ',...
+        error(['Look-up table for mu_w must be a 8x1 array sorted in '...
             'descending order'])
     end
       
    if param < min(LUT)
-        warning(['muw is outside the lower bound of look-up table.',...
+        warning(['muw is outside the lower bound of look-up table.' ...
             ' Solutions of a and bb are output as nan.'])
        idx = nan;
    end
    if param > max(LUT)
-        warning(['muw is outside the upper bound of look-up table.',...
+        warning(['muw is outside the upper bound of look-up table.' ...
             ' Solutions of a and bb are output as nan.'])
        idx = nan;
    end
@@ -379,16 +398,16 @@ if strcmp(type,'muw')
 %eta lookup
 elseif strcmp(type,'eta')
     if length(LUT) ~= 21 || ~issorted(LUT)
-        error(['Look-up table for eta must be a 21x1 array sorted in ',...
+        error(['Look-up table for eta must be a 21x1 array sorted in '...
             'ascending order'])
     end
     if param < min(LUT)
-        warning(['eta is outside the lower bound of look-up table.',...
+        warning(['eta is outside the lower bound of look-up table.' ...
             ' Solutions of a and bb are output as nan.'])
         idx = nan;
     end
     if param > max(LUT)
-        warning(['eta is outside the upper bound of look-up table.',...
+        warning(['eta is outside the upper bound of look-up table.' ...
             ' Solutions of a and bb are output nan.'])
         idx = nan;
     end
@@ -439,8 +458,8 @@ function kappa = LS2_calc_kappa(bb_a,lambda,rLUT)
     %check if bb/a ratio falls within min/max range
     if bb_a >= mins && bb_a <= maxs
         %calculate all kappas for the input bb/a ratio
-        kappas = rLUT(:,2).*bb_a.^3 + rLUT(:,3).*bb_a.^2 + ...
-            rLUT(:,4).*bb_a + rLUT(:,5);
+        kappas = rLUT(:,2).*bb_a.^3 + rLUT(:,3).*bb_a.^2 + rLUT(:,4).*bb_a ...
+            + rLUT(:,5);
         %calculate output kappa using a 1-D linear interpolation to the
         %input wavelength
         kappa = interp1(rLUT(:,1),kappas,lambda,'linear');
@@ -448,8 +467,8 @@ function kappa = LS2_calc_kappa(bb_a,lambda,rLUT)
         kappa = nan;
         %send warning message to user that no Raman correction is applied
         %to input
-        warning(['No Raman Correction since bb/a value is outside of the',...
-            ' acceptable range. Kappa set to nan and no correction is',...
+        warning(['No Raman Correction since bb/a value is outside of the' ...
+            ' acceptable range. Kappa set to nan and no correction is' ...
             ' applied. See Raman Correction LUT.'])
     end
 end
