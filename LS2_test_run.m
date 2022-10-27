@@ -122,7 +122,6 @@ output_bbp = nan(size(Rrs));
 output_kappa = nan(size(Rrs));
 
 %loop to run LS2 for all samples at every wavelength and calculate outputs
-%with LS2
 for i = 1:size(Rrs,1)
     for j = 1:size(Rrs,2)
         [output_a(i,j),output_anw(i,j),output_bb(i,j),output_bbp(i,j),...
