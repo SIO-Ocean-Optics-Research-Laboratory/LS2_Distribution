@@ -18,12 +18,12 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   sza [1x1 double]: Solar zenith angle [deg]
 %
 %   lambda [1x1 double]: Input light wavelength [nm] of Rrs and output
-%   wavelength of model derived IOPs. The nominal spectral reange inteded
+%   wavelength of model derived IOPs. The nominal spectral range inteded
 %   for application of the LS2 model is 350-700 nm. However, the model has
-%   not yet been fully validated over the entire nomical spectral range,
+%   not yet been fully validated over the entire nominal spectral range,
 %   especially in the UV. In addition, the existing validation analysis in
 %   the visible spectral range indicated that different output variables of
-%   the LS2 model exhibit uncertainties hat can vary significantly with
+%   the LS2 model exhibit uncertainties that can vary significantly with
 %   wavelength across the visible spectral range (see Loisel et al. 2018
 %   for more details on validation results and potential uncertainties).
 %   Note: light wavelengths are in vacuum
@@ -72,7 +72,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %       Maximum valid bb/a
 %
 %   Flag_Raman [1x1 Double]: Flag to apply or omit a Raman scattering
-%   correction to Rrs If input value = 1, a Raman scattering correction is
+%   correction to Rrs. If input value = 1, a Raman scattering correction is
 %   applied to Rrs and output is recalculated via a single iteration. If
 %   input value is not equal to 1, no Raman scattering correction is 
 %   applied to Rrs and initial model output is returned
@@ -85,7 +85,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %     
 %   bb [1x1 Double]: Spectral backscattering coefficient [m^-1] at lambda
 %
-%   bbp (1x1 Double): Spectral particulate backscattering coefficient
+%   bbp [1x1 Double]: Spectral particulate backscattering coefficient
 %   [m^-1] at lambda
 %
 %   kappa [1x1 Double]: Value of the Raman scattering correction factor,
@@ -323,18 +323,18 @@ function idx = LS2_seek_pos(param,LUT,type)
 %position of the input parameter in relation to its input LUT
 %
 %Inputs: param, LUT, type
-%   param (1x1 Double): Input muw or eta value
+%   param [1x1 Double]: Input muw or eta value
 %
-%   LUT (nx1 Double): Look-up table of muw or eta values used to determine
+%   LUT [nx1 Double]: Look-up table of muw or eta values used to determine
 %   coefficients in Loisel et al. 2018. If the input is associated with muw
 %   the LUT must be 8x1 and sorted in descending order, and if the input is
 %   associated with eta the LUT must be 21x1 and sorted in ascending order
 %
-%   type (String): Characterize param input. Valid values are 'muw' or
+%   type [String]: Characterize param input. Valid values are 'muw' or
 %   'eta'. Other inputs will produce an error
 %
 %Output: idx
-%   idx (1x1 Double): Leftmost position/index of input param in relation to
+%   idx [1x1 Double]: Leftmost position/index of input param in relation to
 %   its LUT
 %
 %Created: September 8, 2021
@@ -405,15 +405,15 @@ function kappa = LS2_calc_kappa(bb_a,lambda,rLUT)
     %interpolation/extrapolation from the Raman scattering look-up tables
     %
     %Inputs: bb_a, lambda, rLUT
-    %   bb_a (1x1 Double): Backscattering to absorption coefficient ratio
+    %   bb_a [1x1 Double]: Backscattering to absorption coefficient ratio
     %   output from LS2 model
     %
-    %   lam (1x1 Double): Wavelength of bb/a ratio
+    %   lam [1x1 Double]: Wavelength of bb/a ratio
     %
-    %   rLUT (101x7 Double): Look-up table for kappa
+    %   rLUT [101x7 Double]: Look-up table for kappa
     %
     %Output: kappa
-    %   kappa (1x1 Double): Value of Raman scattering correction at a
+    %   kappa [1x1 Double]: Value of Raman scattering correction at a
     %   particular bb/a ratio and wavelength
     %
     %Created: September 14, 2021
