@@ -132,8 +132,8 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   AS A MINIMUM, HOWEVER, I THINK WE SHOULD CONSIDER HAVING A SIMPLE FUNCTION (PROBABLY EXTERNAL TO THE MAIN CODE) TO CALCULATE bp FROM Chl. THIS WAY THE USER 
 %   WILL ONLY HAVE TO WORRY ABOUT PROVIDING Chl AS ADDITIONAL INPUT TO OUR MODEL RATHER THAN ALSO HAVE A CODE THAT CONVERTS Chl TO bp.
 
-%% Step 4: Calculation of eta, the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient
-    eta = bw/b; %[dim]
+%% Step 4: Calculation of eta [dim], the ratio of the pure seawater (molecular) scattering coefficient to the total scattering coefficient
+    eta = bw/b;
 
 %% Steps 5 & 7: Calculation of a and bb from Eqs. 9 and 8
     if ~isnan(eta) && ~isnan(muw)
@@ -408,7 +408,7 @@ function kappa = LS2_calc_kappa(bb_a,lambda,rLUT)
     %The subroutine determines kappa using a linear
     %interpolation/extrapolation from the Raman scattering look-up tables
     %
-    %Inputs: bb_a, lam, rLUT
+    %Inputs: bb_a, lambda, rLUT
     %   bb_a (1x1 Double): Backscattering to absorption coefficient ratio
     %   output from LS2 model
     %
