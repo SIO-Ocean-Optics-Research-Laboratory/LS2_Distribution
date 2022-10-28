@@ -119,7 +119,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
     %In this version of the code, <Kd>_1 is assumed to be known and
     %provided as input in units of [m^-1]. In Loisel et al. (2018), it is
     %obtained from a separate neural network algorithm that estimates <Kd>_1 from remote-sensing reflectance
-    %Note: See a separate Kd_Distribution repository where we provide a version of neural network algorithm to estimate <Kd>_1
+    %Note: See a separate Kd_NN_Distribution repository where we provide a version of neural network algorithm to estimate <Kd>_1
 
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
