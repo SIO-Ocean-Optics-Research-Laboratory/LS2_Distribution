@@ -32,7 +32,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   wavelength lambda
 %
 %   Kd [1x1 double]: Spectral attenuation coefficient of downwelling planar
-%   irradiance, <Kd>_1 [m^-1] at lambda, averaged between the sea surface
+%   irradiance [m^-1] at lambda, averaged between the sea surface
 %   and first attenuation depth
 %   
 %   aw [1x1 double]: Spectral pure seawater absorption coefficient [m^-1]
@@ -115,11 +115,11 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
     nw = 1.34; %Refractive index of seawater
     muw = cosd(asind(sind(sza)/nw)); %[dim]
 
-%% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient of downwelling planar irradiance between the sea surface and first attenuation depth
-    %In this version of the code, <Kd>_1 is assumed to be known and
+%% Step 2: Calculation of Kd, the average spectral attenuation coefficient of downwelling planar irradiance between the sea surface and first attenuation depth
+    %In this version of the code, Kd is assumed to be known and
     %provided as input in units of [m^-1]. In Loisel et al. (2018), it is
-    %obtained from a separate neural network algorithm that estimates <Kd>_1 from remote-sensing reflectance
-    %Note: See a separate Kd_NN_Distribution repository where we provide a version of neural network algorithm to estimate <Kd>_1
+    %obtained from a separate neural network algorithm that estimates Kd from remote-sensing reflectance
+    %Note: See a separate Kd_NN_Distribution repository where we provide a version of neural network algorithm to estimate Kd
 
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
