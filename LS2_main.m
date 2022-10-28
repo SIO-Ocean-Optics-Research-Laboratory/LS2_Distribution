@@ -26,7 +26,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %   the LS2 model exhibit uncertainties that can vary significantly with
 %   wavelength across the visible spectral range (see Loisel et al. 2018
 %   for more details on validation results and potential uncertainties).
-%   Note: light wavelengths are in vacuum
+%   Note: light wavelength is in vacuum
 %
 %   Rrs [1x1 double]: Spectral remote-sensing reflectance [sr^-1] at light
 %   wavelength lambda
