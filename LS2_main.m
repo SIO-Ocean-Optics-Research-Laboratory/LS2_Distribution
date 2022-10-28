@@ -117,14 +117,15 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
 %% Step 2: Calculation of <Kd>_1, the average spectral attenuation coefficient of downwelling planar irradiance between the sea surface and first attenuation depth
     %In this version of the code, <Kd>_1 is assumed to be known and
-    %provided as input in units of [m^-1]. In the 2018 paper, it is
-    %obtained from a separate neural network algorithm
+    %provided as input in units of [m^-1]. In Loisel et al. (2018), it is
+    %obtained from a separate neural network algorithm that estimates <Kd>_1 from remote-sensing reflectance
+    %Note: See a separate Kd_Distribution repository where we provide a version of neural network algorithm to estimate <Kd>_1
 
 %% Step 3: Calculation of b, the total scattering coefficient in units of [m^-1]
     %In this version of the code, bp and bw are assumed to be known and
-    %provided as input in units of [m^-1]. In the 2018 paper, bp is
-    %estimated from chlorophyll-a concentration (Chl) where Chla is
-    %calculated from spectral remote-sensiung reflectance using the ocean
+    %provided as input in units of [m^-1]. In Loisel et al. (2018), bp is
+    %estimated from chlorophyll-a concentration (Chla) where Chla is
+    %calculated from spectral remote-sensing reflectance using the ocean
     %color algorithm OC4v4
     b = bp + bw; %[m^-1]
 
