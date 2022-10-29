@@ -1,5 +1,5 @@
 function [bp] = bp_from_Chla(lambda,Chla)
-% Implement the empirical relationship from Morel and Maritorena 2001 to
+% Implement the empirical relationship from Morel and Maritorena (2001) to
 % calculate the particulate scattering coefficient (bp) at the
 % output light wavelength (lambda) using the input value of chlorophyll-a
 % concentration (Chla)
@@ -10,7 +10,7 @@ function [bp] = bp_from_Chla(lambda,Chla)
 %oceanic waters: A reappraisal. Journal of Geophysical Research, 106(C4),
 %7163–7180. https://doi.org/10.1029/2000JC000319
 %
-%Inputs: Chla, lambda
+%Inputs: lambda, Chla
 %   lambda [1x1 Double]: Light wavelength [nm] at which the output value of
 %   bp is calculated
 %
