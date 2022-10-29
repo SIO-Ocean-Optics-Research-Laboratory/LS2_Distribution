@@ -295,7 +295,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 
 %% Steps 6 & 8: Calculation of anw and bbp
     anw = a - aw; % spectral nonwater absorption coefficient [m^-1]
-    bbw = bw/2; %spectral put seawater backscattering coefficient [m^-1]
+    bbw = bw/2; %spectral pure seawater backscattering coefficient [m^-1]
     bbp = bb - bbw; %spectral particulate backscattering coefficient [m^-1]
 
 %% If output coefficients are negative, replace with NaN
