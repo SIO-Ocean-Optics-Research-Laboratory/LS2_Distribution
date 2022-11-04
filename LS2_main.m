@@ -95,7 +95,7 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
 %2018-04-04: Original implementation in C written by David Dessailly
 %2020-03-23: Original Matlab version, D. Jorge 
 %2022-09-01: Revised Matlab version, M. Kehrli
-%DARIUSZ: WHEN WE ARE FINISHED, ADD DATE AND Final Revised Matab version: M. Kehrli, R. A. Reynolds and D. Stramski
+%2022-11-03: Final Revised Matab version: M. Kehrli, R. A. Reynolds and D. Stramski
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Check function arguments and existence of LUTs
