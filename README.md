@@ -8,7 +8,7 @@ This README document provides information about the files within the LS2_Distrib
 ---
 
 ## LS2_main.m
-The main function that runs LS2 model for a single input R<sub>rs</sub>(λ), i.e., at a single light wavelength λ. The function calculates a(λ), b<sub>b</sub>(λ), a<sub>nw</sub>(λ), and b<sub>bp</sub>(λ), from input solar zenith angle, R<sub>rs</sub>(λ),  K<sub>d</sub>(λ),  b<sub>w</sub>(λ), a<sub>w</sub>(λ), and b<sub>p</sub>(λ), at the given R<sub>rs</sub>(λ) input wavelength. Note in the abscence of input K<sub>d</sub>(λ), that K<sub>d</sub>(λ) can be calculated from a seperate [neural network model](https://github.com/SIO-Ocean-Optics-Research-Laboratory/Kd_NN_Distribution) as is done in Loisel et al. 2018. See supporting documentation for further details.## LS2_main.m.
+The main function that runs LS2 model for a single input R<sub>rs</sub>(λ), i.e., at a single light wavelength λ. The function calculates a(λ), b<sub>b</sub>(λ), a<sub>nw</sub>(λ), and b<sub>bp</sub>(λ), from input solar zenith angle, R<sub>rs</sub>(λ),  K<sub>d</sub>(λ),  b<sub>w</sub>(λ), a<sub>w</sub>(λ), and b<sub>p</sub>(λ), at the given R<sub>rs</sub>(λ) input wavelength. Note that in the absence of input K<sub>d</sub>(λ), K<sub>d</sub>(λ) can be calculated from a separate [neural network model](https://github.com/SIO-Ocean-Optics-Research-Laboratory/Kd_NN_Distribution) as is done in Loisel et al. 2018. See supporting documentation for further details.## LS2_main.m.
 
 ## LS2_LUT.mat
 Look-up tables (LUTs) necessary to run LS2_main.m. The structure contains five fields, each of which is necessary to run LS2. See LS2_main.m function documentation for further details about the .mat file.
