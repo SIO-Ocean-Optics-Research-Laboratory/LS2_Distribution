@@ -24,5 +24,5 @@ Function that calculates the particulate scattering coefficient, b<sub>p</sub>(Î
 
 ---
 Contributors: Matthew Kehrli, Aster Taylor, Rick A. Reynolds, and Dariusz Stramski\
-Contacts: Matthew Kehrli (mdkehrli@ucsd.edu | mdkehrli@gmail.com), Rick Reynolds (rreynolds@ucsd.edu), Dariusz Stramski (dstramski@ucsd.edu)\
+Contacts: Matthew Kehrli (mdkehrli@ucsd.edu | mdkehrli@gmail.com), Rick Reynolds (rreynolds@ucsd.edu), Dariusz Stramski (dstramski@ucsd.edu), Hubert Loisel (hubert.loisel@univ-littoral.fr)\
 Ocean Optics Research Laboratory, Scripps Institution of Oceanography, University of California San Diego
