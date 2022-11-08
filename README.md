@@ -27,4 +27,4 @@ Contributors: Matthew Kehrli, Aster Taylor, Rick A. Reynolds, and Dariusz Strams
 Contacts: Matthew Kehrli (mdkehrli@ucsd.edu | mdkehrli@gmail.com), Rick Reynolds (rreynolds@ucsd.edu), Dariusz Stramski (dstramski@ucsd.edu)\
 Ocean Optics Research Laboratory, Scripps Institution of Oceanography, University of California San Diego, USA\
 Hubert Loisel (hubert.loisel@univ-littoral.fr)\
-Laboratoire d’Oceanologie et de Geosciences, Universite du Littoral Cote d’Opale, Universite Lille, CNRS, Wimereux, France\
+Laboratoire d’Oceanologie et de Geosciences, Universite du Littoral Cote d’Opale, Universite Lille, CNRS, Wimereux, France
