@@ -364,12 +364,12 @@ if strcmp(type,'muw')
     end
       
    if param < min(LUT)
-        warning(['muw is outside the lower bound of look-up table.',...
+       warning(['muw is outside the lower bound of look-up table.',...
             ' Solutions of a and bb are output as nan.'])
        idx = nan;
    end
    if param > max(LUT)
-        warning(['muw is outside the upper bound of look-up table.',...
+       warning(['muw is outside the upper bound of look-up table.',...
             ' Solutions of a and bb are output as nan.'])
        idx = nan;
    end
