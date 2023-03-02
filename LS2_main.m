@@ -309,11 +309,11 @@ function [a,anw,bb,bbp,kappa] = LS2_main(sza,lambda,Rrs,Kd,aw,bw,bp,LS2_LUT,Flag
     end
     if bb < 0 
         warning('Solution for bb is negative. Output bb set to nan.')
-        anw = nan;
+        bb = nan;
     end
     if bbp < 0 
         warning('Solution for bbp is negative. Output bbp set to nan.')
-        anw = nan;
+        bbp = nan;
     end
 
 end
